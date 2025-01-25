@@ -1,1 +1,4 @@
-# LFMS-Project
+# Lost and Found Managaging System
+The Lost and Found System streamlines the process of reporting and reclaiming lost items within the campus. When a student finds a lost item, they report it to a designated office where an assigned admin or personnel collects detailed information about the item, such as its description, location, and time it was found. To prevent spam and ensure accuracy, the admin inputs and verifies the details before posting the item on the Lost and Found page.
+
+The system categorizes items for easy searching and notifies users if a reported lost item matches a found one. Claimants must provide proof of ownership to reclaim their belongings, and once claimed, items are marked as resolved to maintain an up-to-date listing. This process ensures efficient and secure item recovery while minimizing spam and misinformation.
