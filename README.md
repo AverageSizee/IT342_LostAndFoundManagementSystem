@@ -9,7 +9,7 @@
     <img width="180" src="https://img.icons8.com/?size=250&id=90519&format=png&color=000000" alt="Spring logo">
   </a>
   <a href="https://developer.android.com/studio" target="_blank" rel="noopener noreferrer">
-    <img width="180" src="https://commons.wikimedia.org/wiki/File:Android_Studio_icon_(2023).svg#/media/File:Android_Studio_icon_(2023).svg" alt="Android Studio logo">
+    <img width="180" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Android_Studio_icon_%282023%29.svg" alt="Android Studio logo">
   </a>
 </p>
 
