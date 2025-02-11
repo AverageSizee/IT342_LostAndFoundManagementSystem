@@ -1,29 +1,29 @@
-import React, { useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  Button,
-  Container,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import { AccountCircle } from "@mui/icons-material"; // Profile icon
+
+import { useState } from "react"
+import { AppBar, Toolbar, Typography, Box, Button, Container, IconButton, Menu, MenuItem } from "@mui/material"
+import { AccountCircle } from "@mui/icons-material"
+import Login from "./Login.jsx" // Import the Login component
 
 const Header = () => {
-  const [anchorEl, setAnchorEl] = useState(null); // State to manage the dropdown anchor element
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [loginOpen, setLoginOpen] = useState(false) // New state for login modal
 
-  // Function to open the menu
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
-  // Function to close the menu
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
+
+  const handleLoginClick = () => {
+    handleClose() // Close the menu
+    setLoginOpen(true) // Open the login modal
+  }
+
+  const handleLoginClose = () => {
+    setLoginOpen(false) // Close the login modal
+  }
 
   return (
     <AppBar
@@ -105,9 +105,8 @@ const Header = () => {
 
             {/* Profile Icon and Name */}
             <Box display="flex" alignItems="center">
-              {/* Profile Icon on the left */}
               <IconButton
-                onClick={handleClick} // Open the dropdown menu
+                onClick={handleClick}
                 sx={{
                   color: "white",
                   "&:hover": {
@@ -118,12 +117,11 @@ const Header = () => {
                 <AccountCircle sx={{ fontSize: 30 }} />
               </IconButton>
 
-              {/* Name (Guest) on the right */}
               <Typography
                 variant="body2"
                 sx={{
                   color: "white",
-                  marginLeft: "8px", // Space between the icon and name
+                  marginLeft: "8px",
                 }}
               >
                 Guest
@@ -133,29 +131,32 @@ const Header = () => {
             {/* Dropdown Menu */}
             <Menu
               anchorEl={anchorEl}
-              open={Boolean(anchorEl)} // If anchorEl is not null, the menu is open
-              onClose={handleClose} // Close the menu when clicked outside
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
               sx={{
-                marginTop: "0px", // Adjusted to bring the menu closer
-                marginLeft: "-20px", // Optional: slight adjustment to align the menu closer to the icon
-                "& .MuiPaper-root": { // Target only the Paper component inside the Menu
-                  backgroundColor: "#7b0000 !important", // Ensure maroon background for the dropdown only
+                marginTop: "0px",
+                marginLeft: "-20px",
+                "& .MuiPaper-root": {
+                  backgroundColor: "#7b0000 !important",
                 },
-                '& .MuiMenuItem-root': {
-                  color: "white", // Ensures white text for menu items
-                  '&:hover': {
-                    backgroundColor: "#a10000", // Darker maroon on hover
+                "& .MuiMenuItem-root": {
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "#a10000",
                   },
                 },
               }}
             >
-              <MenuItem onClick={handleClose}>Login</MenuItem>
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem>
             </Menu>
           </Box>
         </Toolbar>
       </Container>
-    </AppBar>
-  );
-};
 
-export default Header;
+      {/* Login Modal */}
+      <Login open={loginOpen} onClose={handleLoginClose} />
+    </AppBar>
+  )
+}
+
+export default Header
