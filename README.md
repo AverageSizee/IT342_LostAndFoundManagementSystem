@@ -28,6 +28,6 @@ The Lost and Found System streamlines the process of reporting and reclaiming lo
 The system categorizes items for easy searching and notifies users if a reported lost item matches a found one. Claimants must provide proof of ownership to reclaim their belongings, and once claimed, items are marked as resolved to maintain an up-to-date listing. This process ensures efficient and secure item recovery while minimizing spam and misinformation.
 
 <h1>Members</h1>
-- Bolarde, Miklos Kaiser A. (All Roundner)<br>
+- Bolarde, Miklos Kaiser A. (All Rounder)<br>
 - Cuyugan, Mikael Lorenzo A. (Frontend)<br>
 - Crystal, Dave Mark D. (Backend)<br>
