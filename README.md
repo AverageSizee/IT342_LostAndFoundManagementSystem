@@ -27,7 +27,41 @@ The Lost and Found System streamlines the process of reporting and reclaiming lo
 
 The system categorizes items for easy searching and notifies users if a reported lost item matches a found one. Claimants must provide proof of ownership to reclaim their belongings, and once claimed, items are marked as resolved to maintain an up-to-date listing. This process ensures efficient and secure item recovery while minimizing spam and misinformation.
 
-<h1>Members</h1>
+<h1>Features</h1>
+
+  <h2>Web Application</h2>
+
+    Upload Found Items (Admin)
+      - When a student finds a lost item, they bring it to the office along with the relevant details (such as the item description, location found, date, and category). The admin will then record the item’s information and upload it into the system. The admin should be able to input details such as the item's name, description, condition, location found, and any distinguishing features, along with uploading any photos of the item for identification purposes. The item will then be listed on the site for students to view.
+    
+    Search
+      - Students can browse the site to check if any lost items have been posted that match their lost possessions. They can search for lost items based on keywords, categories (e.g., electronics, clothing, books), or filter results by the date the item was found, item type, or location. The search functionality should also allow students to sort by relevance or most recently added items.
+    
+    Inventory Management
+      - The admin has the ability to view the status of all recorded lost items, including whether they have been claimed. The admin can also see the details of who claimed an item (i.e., the student's name) and the date it was claimed. This feature helps track the status of lost items and ensures that all claims are properly recorded and managed.
+
+
+  <h2>Mobile Application</h2>
+
+    Report Lost Item/s (Users)
+      - In the mobile application, students can report a lost item by filling out a form with relevant details about the item. The form will require students to provide a description of the lost item, the location where it was lost, the date it was lost, and any distinctive features that could help identify the item. Students can also upload a photo of the item to assist in identification. Once the report is submitted, the lost item will be entered into the system and made visible for potential matches.
+
+    Search
+      - Similar to the web application, students can use the mobile app to browse and search for lost items that may match their own. They can use search filters, such as item category, date found, and item description, to narrow down results. The search functionality should allow for a user-friendly interface with sorting and filtering options to help students find the lost items quickly.
+
+    Push Notifications
+      - If any new items are uploaded to the system that match the student's reported lost item—whether it's an exact match or similar in description, location, or type—the student will automatically receive a push notification. This ensures that students are promptly alerted if an item related to their lost possession is found and posted, making the recovery process quicker and more efficient.
+
+
+
+
+<h1>Links</h1>
+- Figma:
+https://www.figma.com/design/pCgalHOOqkGGmh87QMZKnb/Untitled?node-id=0-1&p=f
+- Diagrams: 
+
+
+<h1>Developers Profiles</h1>
 - Bolarde, Miklos Kaiser A. (All Rounder)<br>
 - Cuyugan, Mikael Lorenzo A. (Frontend)<br>
 - Crystal, Dave Mark D. (Backend)<br>
