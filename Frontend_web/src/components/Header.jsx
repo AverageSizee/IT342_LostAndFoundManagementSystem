@@ -2,11 +2,13 @@
 import { useState } from "react"
 import { AppBar, Toolbar, Typography, Box, Button, Container, IconButton, Menu, MenuItem } from "@mui/material"
 import { AccountCircle } from "@mui/icons-material"
-import Login from "./Login.jsx" // Import the Login component
+import Login from "./Login.jsx" 
+import Register from "./Register.jsx"
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const [loginOpen, setLoginOpen] = useState(false) // New state for login modal
+  const [loginOpen, setLoginOpen] = useState(false) 
+  const [registerOpen, setRegisterOpen] = useState(false)
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -24,6 +26,21 @@ const Header = () => {
   const handleLoginClose = () => {
     setLoginOpen(false) // Close the login modal
   }
+  const handleRegisterClick = () => {
+    setLoginOpen(false)
+    setRegisterOpen(true)
+  }
+
+  const handleRegisterClose = () => {
+    setRegisterOpen(false)
+  }
+
+  const handleLoginFromRegister = () => {
+    setRegisterOpen(false)
+    setLoginOpen(true)
+  }
+
+
 
   return (
     <AppBar
@@ -154,7 +171,10 @@ const Header = () => {
       </Container>
 
       {/* Login Modal */}
-      <Login open={loginOpen} onClose={handleLoginClose} />
+            <Login open={loginOpen} onClose={handleLoginClose} onRegisterClick={handleRegisterClick} />
+
+      {/* Register Modal */}
+            <Register open={registerOpen} onClose={handleRegisterClose} onLoginClick={handleLoginFromRegister} />
     </AppBar>
   )
 }
