@@ -1,7 +1,7 @@
 import { Modal, Box, Typography, TextField, Button, IconButton } from "@mui/material"
 import { Close as CloseIcon } from "@mui/icons-material"
 
-const Login = ({ open, onClose }) => {
+const Login = ({ open, onClose, onRegisterClick }) => {
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="login-modal-title" aria-describedby="login-modal-description">
       <Box
@@ -125,10 +125,13 @@ const Login = ({ open, onClose }) => {
               </Button>
             </form>
             <Typography variant="body2" sx={{ mt: 1 }}>
-              Don't have an account?{" "}
-              <a href="#" style={{ color: "#800000", fontWeight: "bold", textDecoration: "none" }}>
+            Don't have an account?{" "}
+              <Button
+                onClick={onRegisterClick}
+                sx={{ color: "#800000", fontWeight: "bold", textTransform: "none", p: 0 }}
+              >
                 Sign-up
-              </a>
+              </Button>
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
               <a href="#" style={{ color: "#800000", fontWeight: "bold", textDecoration: "none" }}>
