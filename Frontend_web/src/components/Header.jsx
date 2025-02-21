@@ -1,14 +1,39 @@
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AppBar, Toolbar, Typography, Box, Button, Container, IconButton, Menu, MenuItem } from "@mui/material"
 import { AccountCircle } from "@mui/icons-material"
-import Login from "./Login.jsx" 
+import Login from "./Login.jsx"
 import Register from "./Register.jsx"
+import { useAuth } from "./AuthProvider"
+
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const [loginOpen, setLoginOpen] = useState(false) 
+  const [loginOpen, setLoginOpen] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [username, setUsername] = useState("Guest")
+  const {logout} = useAuth();
+
+  useEffect(() => {
+    const updateAuthStatus = () => {
+      const authStatus = localStorage.getItem("isAuthenticated") === "true";
+      setIsAuthenticated(authStatus);
+      
+      if (authStatus) {
+        const storedUsername = localStorage.getItem("user") || "User";
+        setUsername(storedUsername);
+      }
+    };
+  
+    updateAuthStatus(); // Run on mount
+  
+    // Listen for storage changes (when login state updates)
+    window.addEventListener("storage", updateAuthStatus);
+  
+    return () => {
+      window.removeEventListener("storage", updateAuthStatus);
+    };
+  }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -19,13 +44,14 @@ const Header = () => {
   }
 
   const handleLoginClick = () => {
-    handleClose() // Close the menu
-    setLoginOpen(true) // Open the login modal
+    handleClose()
+    setLoginOpen(true)
   }
 
   const handleLoginClose = () => {
-    setLoginOpen(false) // Close the login modal
+    setLoginOpen(false)
   }
+
   const handleRegisterClick = () => {
     setLoginOpen(false)
     setRegisterOpen(true)
@@ -40,7 +66,10 @@ const Header = () => {
     setLoginOpen(true)
   }
 
-
+  const handleLogout = () => {
+    logout();
+    window.dispatchEvent(new Event("storage"));
+  }
 
   return (
     <AppBar
@@ -89,92 +118,240 @@ const Header = () => {
 
           {/* Navigation Links and Profile */}
           <Box display="flex" gap={2} alignItems="center">
-            <Button
-              href="/home"
-              sx={{
-                color: "white",
-                fontSize: "0.9rem",
-                padding: "0.25rem 0.75rem",
-                borderRadius: "20px",
-                textTransform: "none",
-                "&:hover": {
-                  color: "rgba(219, 139, 9, 0.76)",
+          <Button
+            href="/home"
+            sx={{
+              position: "relative",
+              color: "white",
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+              padding: "0.25rem 0.75rem",
+              borderRadius: "20px",
+              textTransform: "none",
+              overflow: "hidden",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: "0px",
+                height: "0px",
+                backgroundColor: "rgb(255, 255, 255)",
+                borderRadius: "50%",
+                transition: "width 0.3s ease-in-out, height 0.3s ease-in-out, top 0.3s ease-in-out, left 0.3s ease-in-out",
+                transform: "translate(-50%, -50%)",
+                zIndex: -1,
+              },
+              "&:hover": {
+                color: "#800000",
+                "&::before": {
+                  width: "120%",
+                  height: "120%",
                 },
-              }}
-            >
-              Home
-            </Button>
-            <Button
-              href="/register_item"
-              sx={{
-                color: "white",
-                fontSize: "0.9rem",
-                padding: "0.25rem 0.75rem",
-                borderRadius: "20px",
-                textTransform: "none",
-                "&:hover": {
-                  color: "rgba(219, 139, 9, 0.76)",
+              },
+            }}
+          >
+            Home
+          </Button>
+          <Button
+             sx={{
+              position: "relative",
+              color: "white",
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+              padding: "0.25rem 0.75rem",
+              borderRadius: "20px", 
+              textTransform: "none",
+              overflow: "hidden",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: "300%",
+                height: "300%",
+                backgroundColor: "rgb(255, 255, 255)",
+                borderRadius: "inherit", // Matches the button's border-radius
+                transition: "transform 0.3s ease-in-out",
+                transform: "translate(-50%, -50%) scale(0)",
+                zIndex: -1,
+              },
+              "&:hover": {
+                color: "#800000",
+                "&::before": {
+                  transform: "translate(-50%, -50%) scale(1)",
                 },
-              }}
+              },
+            }}
             >
               Lost & Found an Item?
             </Button>
 
-            {/* Profile Icon and Name */}
-            <Box display="flex" alignItems="center">
-              <IconButton
-                onClick={handleClick}
-                sx={{
-                  color: "white",
-                  "&:hover": {
-                    color: "rgba(219, 139, 9, 0.76)",
-                  },
-                }}
-              >
-                <AccountCircle sx={{ fontSize: 30 }} />
-              </IconButton>
+            {/* Conditional Rendering for Authentication */}
+            {isAuthenticated ? (
+                  <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  sx={{
+                    position: "relative",
+                    color: "white",
+                    fontSize: "0.9rem",
+                    fontWeight: "bold",
+                    height: "2.25rem", 
+                    lineHeight: "1.5rem", 
+                    padding: "0 0.75rem",
+                    borderRadius: "20px",
+                    textTransform: "none",
+                    overflow: "hidden",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      width: "300%",
+                      height: "200%", 
+                      backgroundColor: "rgb(255, 255, 255)",
+                      borderRadius: "inherit",
+                      transition: "transform 0.3s ease-in-out",
+                      transform: "translate(-50%, -50%) scale(0)",
+                      zIndex: -1,
+                    },
+                    "&:hover": {
+                      color: "#800000",
+                      "&::before": {
+                        transform: "translate(-50%, -50%) scale(1)",
+                      },
+                    },
+                  }}
+                >
+                <IconButton
+                  onClick={handleClick}
+                  sx={{
+                    color: "inherit", 
+                    fontSize: "0.9rem",
+                    fontWeight: "bold",
+                    textTransform: "none",
+                  }}
+                >
+                  <AccountCircle sx={{ fontSize: 30 }} />
+                </IconButton>
 
-              <Typography
-                variant="body2"
+                <Typography
                 sx={{
-                  color: "white",
+                  color: "inherit", 
+                  fontWeight: "bold",
                   marginLeft: "8px",
                 }}
-              >
-                Guest
-              </Typography>
-            </Box>
+                >
+                  {username}
+                </Typography>
 
-            {/* Dropdown Menu */}
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              sx={{
-                marginTop: "0px",
-                marginLeft: "-20px",
-                "& .MuiPaper-root": {
-                  backgroundColor: "#7b0000 !important",
-                },
-                "& .MuiMenuItem-root": {
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "#a10000",
-                  },
-                },
-              }}
-            >
-              <MenuItem onClick={handleLoginClick}>Login</MenuItem>
-            </Menu>
+                {/* Dropdown Menu */}
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                  sx={{
+                    marginTop: "0px",
+                    marginLeft: "-20px",
+                    "& .MuiPaper-root": {
+                      backgroundColor: "#7b0000 !important",
+                    },
+                    "& .MuiMenuItem-root": {
+                      color: "white",
+                      "&:hover": {
+                        backgroundColor: "#a10000",
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </Menu>
+              </Box>
+            ) : (
+              <>
+                <Button
+                  onClick={handleLoginClick}
+                  sx={{
+                    position: "relative",
+                    color: "white",
+                    fontSize: "0.9rem",
+                    fontWeight: "bold",
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "20px",
+                    textTransform: "none",
+                    overflow: "hidden",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      width: "0px",
+                      height: "0px",
+                      backgroundColor: "rgb(255, 255, 255)",
+                      borderRadius: "50%",
+                      transition: "width 0.3s ease-in-out, height 0.3s ease-in-out, top 0.3s ease-in-out, left 0.3s ease-in-out",
+                      transform: "translate(-50%, -50%)",
+                      zIndex: -1, 
+                    },
+                    "&:hover": {
+                      color: "#800000",
+                      "&::before": {
+                        width: "120%",
+                        height: "120%",
+                      },
+                    },
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={handleRegisterClick}
+                  sx={{
+                    position: "relative",
+                    color: "white",
+                    fontSize: "0.9rem",
+                    fontWeight: "bold",
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "20px",
+                    textTransform: "none",
+                    overflow: "hidden",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      width: "0px",
+                      height: "0px",
+                      backgroundColor: "rgb(255, 255, 255)",
+                      borderRadius: "50%",
+                      transition: "width 0.3s ease-in-out, height 0.3s ease-in-out, top 0.3s ease-in-out, left 0.3s ease-in-out",
+                      transform: "translate(-50%, -50%)",
+                      zIndex: -1, 
+                    },
+                    "&:hover": {
+                      color: "#800000",
+                      "&::before": {
+                        width: "120%",
+                        height: "120%",
+                      },
+                    },
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </Box>
         </Toolbar>
       </Container>
 
       {/* Login Modal */}
-            <Login open={loginOpen} onClose={handleLoginClose} onRegisterClick={handleRegisterClick} />
+      <Login open={loginOpen} onClose={handleLoginClose} onRegisterClick={handleRegisterClick} />
 
       {/* Register Modal */}
-            <Register open={registerOpen} onClose={handleRegisterClose} onLoginClick={handleLoginFromRegister} />
+      <Register open={registerOpen} onClose={handleRegisterClose} onLoginClick={handleLoginFromRegister} />
     </AppBar>
   )
 }
