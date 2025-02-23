@@ -1,7 +1,49 @@
-import { Modal, Box, Typography, TextField, Button, IconButton } from "@mui/material"
+import { useState } from "react"
+import axios from "axios"
+import { Modal, Box, Typography, TextField, Button, IconButton, Grid } from "@mui/material"
 import { Close as CloseIcon } from "@mui/icons-material"
 
-const Register = ({ open, onClose, onLoginClick  }) => {
+const Register = ({ open, onClose, onLoginClick }) => {
+  const [formData, setFormData] = useState({
+    schoolId: "",
+    firstname: "",
+    lastname: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  })
+
+  const [loading, setLoading] = useState(false)
+
+  // Handle form input changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  // Handle form submission
+  const handleRegister = async (e) => {
+    e.preventDefault()
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!")
+      return
+    }
+
+    const { confirmPassword, ...requestBody } = formData // Exclude confirmPassword
+
+    try {
+      setLoading(true)
+      const response = await axios.post("http://localhost:8080/user/register", requestBody)
+      alert("Registration successful!")
+      setFormData({ schoolId: "", firstname: "", lastname: "", email: "", password: "", confirmPassword: "" }) // Reset form
+      onClose() // Close modal after successful registration
+    } catch (error) {
+      alert(error.response?.data?.message || "Registration failed.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Modal
       open={open}
@@ -72,10 +114,13 @@ const Register = ({ open, onClose, onLoginClick  }) => {
             <Typography variant="h4" sx={{ fontSize: "24px", mb: 2, color: "#800000" }}>
               Register
             </Typography>
-            <form>
+            <form onSubmit={handleRegister}>
               <TextField
                 fullWidth
-                label="Full Name"
+                label="ID"
+                name="schoolId"
+                value={formData.schoolId}
+                onChange={handleChange}
                 variant="outlined"
                 margin="normal"
                 required
@@ -90,9 +135,58 @@ const Register = ({ open, onClose, onLoginClick  }) => {
                   },
                 }}
               />
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    name="firstname"
+                    value={formData.firstname}
+                    onChange={handleChange}
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#800000",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#800000",
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    name="lastname"
+                    value={formData.lastname}
+                    onChange={handleChange}
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#800000",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#800000",
+                      },
+                    }}
+                  />
+                </Grid>
+              </Grid>
               <TextField
                 fullWidth
                 label="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 variant="outlined"
                 margin="normal"
                 required
@@ -110,7 +204,10 @@ const Register = ({ open, onClose, onLoginClick  }) => {
               <TextField
                 fullWidth
                 label="Password"
+                name="password"
                 type="password"
+                value={formData.password}
+                onChange={handleChange}
                 variant="outlined"
                 margin="normal"
                 required
@@ -128,7 +225,10 @@ const Register = ({ open, onClose, onLoginClick  }) => {
               <TextField
                 fullWidth
                 label="Confirm Password"
+                name="confirmPassword"
                 type="password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 variant="outlined"
                 margin="normal"
                 required
@@ -146,6 +246,8 @@ const Register = ({ open, onClose, onLoginClick  }) => {
               <Button
                 fullWidth
                 variant="contained"
+                type="submit"
+                disabled={loading}
                 sx={{
                   mt: 2,
                   mb: 2,
@@ -161,7 +263,7 @@ const Register = ({ open, onClose, onLoginClick  }) => {
                   fontWeight: "bold",
                 }}
               >
-                Register
+                {loading ? "Registering..." : "Register"}
               </Button>
               <Typography variant="body2" sx={{ mt: 1 }}>
                 Do you have an account?{" "}

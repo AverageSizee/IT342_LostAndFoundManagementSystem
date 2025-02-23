@@ -1,7 +1,36 @@
-import { Modal, Box, Typography, TextField, Button, IconButton } from "@mui/material"
-import { Close as CloseIcon } from "@mui/icons-material"
+import { useState } from "react";
+import axios from "axios";
+import { Modal, Box, Typography, TextField, Button, IconButton } from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
+import { useAuth } from "./AuthProvider";
 
 const Login = ({ open, onClose, onRegisterClick }) => {
+  const [credentials, setCredentials] = useState({ schoolId: "", password: "" });
+  const [error, setError] = useState("");
+
+  const {loginAction} = useAuth();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCredentials((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    try {
+      await loginAction(credentials);
+      window.dispatchEvent(new Event("storage"));
+      onClose();
+      console.log("Login successful");
+      // Handle successful login (e.g., store token, redirect user)
+    } catch (err) {
+      setError("Invalid credentials. Please try again.");
+      console.error("Login error:", err);
+    }
+  };
+
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="login-modal-title" aria-describedby="login-modal-description">
       <Box
@@ -28,26 +57,8 @@ const Login = ({ open, onClose, onRegisterClick }) => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box
-              component="img"
-              src="/public/images/logo.png"
-              alt="CIT-U Lost and Found Logo"
-              sx={{
-                width: "2rem",
-                height: "2rem",
-                marginRight: "0.5rem",
-              }}
-            />
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "white",
-              }}
-            >
-              CIT-U Lost&Found
-            </Typography>
+            <Box component="img" src="/public/images/logo.png" alt="CIT-U Lost and Found Logo" sx={{ width: "2rem", height: "2rem", marginRight: "0.5rem" }} />
+            <Typography variant="h6" sx={{ fontSize: "18px", fontWeight: "bold", color: "white" }}>CIT-U Lost&Found</Typography>
           </Box>
           <IconButton onClick={onClose} sx={{ color: "white" }}>
             <CloseIcon />
@@ -64,106 +75,25 @@ const Login = ({ open, onClose, onRegisterClick }) => {
               color: "#333",
             }}
           >
-            <Typography variant="h4" sx={{ fontSize: "24px", mb: 2, color: "#800000" }}>
-              Log In
-            </Typography>
-            <form>
-              <TextField
-                fullWidth
-                label="Email"
-                variant="outlined"
-                margin="normal"
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#800000",
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#800000",
-                  },
-                }}
-              />
-              <TextField
-                fullWidth
-                label="Password"
-                type="password"
-                variant="outlined"
-                margin="normal"
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#800000",
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#800000",
-                  },
-                }}
-              />
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 2,
-                  mb: 2,
-                  bgcolor: "#f0ad4e",
-                  color: "white",
-                  "&:hover": {
-                    bgcolor: "#ec971f",
-                  },
-                  textTransform: "none",
-                  borderRadius: "5px",
-                  padding: "10px",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                }}
-              >
-                Log In
-              </Button>
+            <Typography variant="h4" sx={{ fontSize: "24px", mb: 2, color: "#800000" }}>Log In</Typography>
+            <form onSubmit={handleLogin}>
+              <TextField fullWidth label="School ID" variant="outlined" margin="normal" required name="schoolId" value={credentials.schoolId} onChange={handleChange}
+                sx={{"& .MuiOutlinedInput-root": {"&.Mui-focused fieldset": { borderColor: "#800000" }}, "& .MuiInputLabel-root.Mui-focused": { color: "#800000" }}} />
+              <TextField fullWidth label="Password" type="password" variant="outlined" margin="normal" required name="password" value={credentials.password} onChange={handleChange}
+                sx={{"& .MuiOutlinedInput-root": {"&.Mui-focused fieldset": { borderColor: "#800000" }}, "& .MuiInputLabel-root.Mui-focused": { color: "#800000" }}} />
+              {error && <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>}
+              <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 2, bgcolor: "#f0ad4e", color: "white", "&:hover": { bgcolor: "#ec971f" }, textTransform: "none", borderRadius: "5px", padding: "10px", fontSize: "16px", fontWeight: "bold" }}>Log In</Button>
             </form>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-            Don't have an account?{" "}
-              <Button
-                onClick={onRegisterClick}
-                sx={{ color: "#800000", fontWeight: "bold", textTransform: "none", p: 0 }}
-              >
-                Sign-up
-              </Button>
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              <a href="#" style={{ color: "#800000", fontWeight: "bold", textDecoration: "none" }}>
-                Forgot Password
-              </a>
-            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>Don't have an account? <Button onClick={onRegisterClick} sx={{ color: "#800000", fontWeight: "bold", textTransform: "none", p: 0 }}>Sign-up</Button></Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}><a href="#" style={{ color: "#800000", fontWeight: "bold", textDecoration: "none" }}>Forgot Password</a></Typography>
           </Box>
-          <Box
-            sx={{
-              flex: 1,
-              position: "relative",
-              overflow: "hidden",
-              borderRadius: { xs: "0", md: "0 15px 15px 0" },
-              display: { xs: "none", md: "block" },
-            }}
-          >
-            <Box
-              component="img"
-              src="/public/images/studentss.png"
-              alt="Students"
-              sx={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                filter: "brightness(0.8)",
-              }}
-            />
+          <Box sx={{ flex: 1, position: "relative", overflow: "hidden", borderRadius: { xs: "0", md: "0 15px 15px 0" }, display: { xs: "none", md: "block" } }}>
+            <Box component="img" src="/public/images/studentss.png" alt="Students" sx={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.8)" }} />
           </Box>
         </Box>
       </Box>
     </Modal>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
