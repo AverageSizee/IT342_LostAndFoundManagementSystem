@@ -1,4 +1,9 @@
 package com.example.lostfoundmanagementsystem.data.model
 
-class User {
-}
+data class User(
+    val schoolId: String,
+    val firstname: String,
+    val lastname: String,
+    val email: String,
+    val password: String
+)
