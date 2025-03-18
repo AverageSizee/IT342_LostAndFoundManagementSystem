@@ -56,6 +56,7 @@ The system categorizes items for easy searching and notifies users if a reported
 
 
 <h1>Links</h1>
+Gant Chart: https://www.notion.so/1bae4e6e988c807eb5d6e7a58d08c707?v=1bae4e6e988c801b91d9000c214c4a23&pvs=4
 - Figma:
 https://www.figma.com/design/pCgalHOOqkGGmh87QMZKnb/Untitled?node-id=0-1&p=f
 - Diagrams: 
