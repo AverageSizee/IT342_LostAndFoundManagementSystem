@@ -7,9 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);//wala ni sud diri lang ni incase gamiton nako, ge try nako backend mo butang session para dili makita info sa user
     const [token, setToken] = useState(localStorage.getItem("token")||'');
 
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return localStorage.getItem("isAuthenticated") === "true";
-    });
+    const isAuthenticated = !!token; 
 
     const loginAction  = async (data) => {
         try {
@@ -19,12 +17,10 @@ export const AuthProvider = ({ children }) => {
             if (response.status === 200 || response.status === 201) {
                 const { token, user } = response.data; 
     
-                localStorage.setItem("isAuthenticated", "true");
                 localStorage.setItem("token", token);
-                localStorage.setItem("user", user); 
-    
-                setUser(user);
+
                 setToken(token);
+                setIsAuthenticated(true);
                 return;
             }
             throw new Error(response.data.message)
@@ -34,15 +30,30 @@ export const AuthProvider = ({ children }) => {
         
     }
 
-    const logout = () => {
-        setUser(null);
-        setToken('');
-        setIsAuthenticated(false);
-        localStorage.removeItem("isAuthenticated");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    const logout = async () => {
+        const token = localStorage.getItem("token");
+    
+        if (!token) return; // Prevent double execution if already logged out
+    
+        try {
+            await axios.post("http://localhost:8080/user/logout", {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+    
+           
+            setToken('');
+    
+            localStorage.removeItem("token");
+    
+            
+            setTimeout(() => {
+                window.dispatchEvent(new Event("storage"));
+            }, 100);
+    
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
-
     return (
          <AuthContext.Provider value={{ user, token, isAuthenticated, loginAction, logout }}>
               {children}

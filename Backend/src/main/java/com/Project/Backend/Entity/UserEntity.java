@@ -23,15 +23,18 @@ public class UserEntity {
 
     private String password;
 
+    private String role;
+
     public UserEntity() {
     }
 
-    public UserEntity(String schoolId, String firstname, String lastname, String email, String password) {
+    public UserEntity(String schoolId, String firstname, String lastname, String email, String password, String role) {
         this.schoolId = schoolId;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     public int getUserId() {
@@ -82,6 +85,16 @@ public class UserEntity {
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    
 
     
 }

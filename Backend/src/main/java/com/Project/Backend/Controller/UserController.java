@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +27,7 @@ import com.Project.Backend.Service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -56,17 +57,35 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/getsessionuser")
-    public ResponseEntity<?> getUser(HttpSession session) {
-        String userId = (String) session.getAttribute("user");
-
-        System.out.println(session.getAttribute("user"));
-
-        if (userId != null) {
-            return ResponseEntity.ok(userId);
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No active session");
+    @GetMapping("/getcurrentuser")
+     public ResponseEntity<Map<String, String>> getSchoolId(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "Invalid token"));
         }
+
+        String token = authHeader.substring(7);
+        String schoolId = tokenService.extractSchoolId(token);
+
+        return ResponseEntity.ok(Collections.singletonMap("schoolId", schoolId));
+    }
+    @GetMapping("/getcurrentrole")
+    public ResponseEntity<Map<String, String>> getUserRole(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "Invalid token"));
+        }
+
+        String token = authHeader.substring(7); 
+        String role = tokenService.extractRole(token);
+
+        return ResponseEntity.ok(Collections.singletonMap("role", role));
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); 
+        return "Logout successful";
     }
 
     @PostMapping("/login")
@@ -80,9 +99,12 @@ public class UserController {
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(user,null,null);
 
-                String token = tokenService.generateToken(authentication);
+                String token = tokenService.generateToken(authentication,user.getSchoolId(),user.getRole());
 
                 session.setAttribute("user", loginRequest.getSchoolId());
+                //System.out.println(session.getAttribute("user"));
+                //System.out.println("Session ID: " + session.getId()); 
+
 
                 Map<String, Object> responseBody = new HashMap<>();
                 responseBody.put("token", token);
