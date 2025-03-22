@@ -10,15 +10,15 @@ export default function LandingPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          width: "100vw", // Ensures the background spans the full width
+          width: "100vw", 
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundImage: `url(/Images/students-image.png)`, // Background image path
-          backgroundSize: "cover", // Ensures the image covers the full area
-          backgroundPosition: "center", // Centers the image
-          backgroundRepeat: "no-repeat", // Prevents tiling
+          backgroundImage: `url(/Images/students-image.png)`, 
+          backgroundSize: "cover", 
+          backgroundPosition: "center", 
+          backgroundRepeat: "no-repeat",
           margin: 0,
           padding: 0,
         }}

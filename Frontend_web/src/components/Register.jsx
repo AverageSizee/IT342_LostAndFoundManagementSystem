@@ -10,6 +10,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
     lastname: "",
     email: "",
     password: "",
+    role: "student",
     confirmPassword: "",
   })
 

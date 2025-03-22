@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react"
 import { AppBar, Toolbar, Typography, Box, Button, Container, IconButton, Menu, MenuItem } from "@mui/material"
 import { AccountCircle } from "@mui/icons-material"
+import axios from "axios";
 import Login from "./Login.jsx"
 import Register from "./Register.jsx"
 import { useAuth } from "./AuthProvider"
+import { useNavigate } from "react-router-dom";
+
+const API_URL = "http://localhost:8080/user";
 
 
 const Header = () => {
@@ -13,23 +17,39 @@ const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState("Guest")
   const {logout} = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const updateAuthStatus = () => {
-      const authStatus = localStorage.getItem("isAuthenticated") === "true";
-      setIsAuthenticated(authStatus);
-      
-      if (authStatus) {
-        const storedUsername = localStorage.getItem("user") || "User";
-        setUsername(storedUsername);
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem("token"); 
+
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+       
+        const response = await axios.get(`${API_URL}/getcurrentuser`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setIsAuthenticated(true);
+        setUsername(response.data.schoolId); 
+
+      } catch (error) {
+        console.error("Error fetching student ID:", error.response?.data || error.message);
+        setIsAuthenticated(false);
       }
     };
-  
-    updateAuthStatus(); // Run on mount
-  
-    // Listen for storage changes (when login state updates)
+
+    fetchUserInfo(); // Fetch on mount
+
+    // Handle auth status updates when storage changes
+    const updateAuthStatus = () => fetchUserInfo();
+
     window.addEventListener("storage", updateAuthStatus);
-  
+
     return () => {
       window.removeEventListener("storage", updateAuthStatus);
     };
@@ -67,8 +87,8 @@ const Header = () => {
   }
 
   const handleLogout = () => {
+    if (!isAuthenticated) return; 
     logout();
-    window.dispatchEvent(new Event("storage"));
   }
 
   return (
@@ -154,6 +174,7 @@ const Header = () => {
             Home
           </Button>
           <Button
+            onClick={() => navigate("/LostandFoundItems")}
              sx={{
               position: "relative",
               color: "white",
