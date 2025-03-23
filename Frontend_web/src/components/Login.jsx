@@ -2,11 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import { Modal, Box, Typography, TextField, Button, IconButton } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
 const Login = ({ open, onClose, onRegisterClick }) => {
   const [credentials, setCredentials] = useState({ schoolId: "", password: "" });
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const {loginAction} = useAuth();
 
@@ -20,7 +22,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
     setError("");
 
     try {
-      await loginAction(credentials);
+      await loginAction(credentials, navigate);
       window.dispatchEvent(new Event("storage"));
       onClose();
       console.log("Login successful");

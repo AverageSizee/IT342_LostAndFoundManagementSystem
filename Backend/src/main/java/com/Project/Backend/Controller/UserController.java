@@ -109,6 +109,7 @@ public class UserController {
                 Map<String, Object> responseBody = new HashMap<>();
                 responseBody.put("token", token);
                 responseBody.put("user", loginRequest.getSchoolId());
+                responseBody.put("role", user.getRole());
                 return ResponseEntity.ok(responseBody);
             }else{
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("message", "Invalid credentials"));
