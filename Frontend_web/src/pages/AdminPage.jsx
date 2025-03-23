@@ -3,12 +3,13 @@ import {
     Card, CardContent, Typography, TextField, IconButton, Avatar, List, ListItem, 
     ListItemIcon, ListItemText, Button, Grid, CardMedia 
 } from "@mui/material";
-import { Search, People, Inventory, HourglassEmpty, MoreVert, Edit, Delete, CheckCircle } from "@mui/icons-material";
+import { Search, People, Inventory, HourglassEmpty, MoreVert, Edit, Delete, CheckCircle, Assignment } from "@mui/icons-material";
 
 const AdminPage = () => {
     const [selectedSection, setSelectedSection] = useState("users");
     const [users, setUsers] = useState([]);
     const [items, setItems] = useState([]);
+    const [claimRequests, setClaimRequests] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
@@ -16,6 +17,8 @@ const AdminPage = () => {
             fetchUsers();
         } else if (selectedSection === "items" || selectedSection === "pendingReview") {
             fetchItems();
+        }else if (selectedSection === "claimRequests") {
+            fetchClaimRequests();
         }
     }, [selectedSection]);
 
@@ -71,6 +74,43 @@ const AdminPage = () => {
         }
     };
 
+    // Fetch Claim Requests
+    const fetchClaimRequests = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://localhost:8080/claims/getall", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const data = await response.json();
+            console.log(data);
+            setClaimRequests(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error("Error fetching claim requests:", error);
+        }
+    };
+    // Approve Claim Function
+    const approveClaim = async (requestId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8080/claims/approve/${requestId}`, {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.ok) {
+                // Update claim request status to approved
+                setClaimRequests(claimRequests.map(request =>
+                    request.requestId === requestId ? { ...request, status: "Approved" } : request
+                ));
+            } else {
+                console.error("Failed to approve claim");
+            }
+        } catch (error) {
+            console.error("Error approving claim:", error);
+        }
+    };
+
     return (
         <div style={styles.container}>
             {/* Sidebar */}
@@ -107,6 +147,17 @@ const AdminPage = () => {
                             <HourglassEmpty style={{ color: selectedSection === "pendingReview" ? "#007bff" : "#fff" }} />
                         </ListItemIcon>
                         <ListItemText primary="Pending Review" />
+                    </ListItem>
+
+                    <ListItem 
+                        button 
+                        onClick={() => setSelectedSection("claimRequests")} 
+                        style={selectedSection === "claimRequests" ? styles.selectedItem : styles.defaultItem}
+                    >
+                        <ListItemIcon>
+                            <Assignment style={{ color: selectedSection === "claimRequests" ? "#007bff" : "#fff" }} />
+                        </ListItemIcon>
+                        <ListItemText primary="Claim Requests" />
                     </ListItem>
                 </List>
             </div>
@@ -241,7 +292,38 @@ const AdminPage = () => {
                             </Grid>
                         ))}
                     </Grid>
-                ) : (
+                ) : selectedSection === "claimRequests" ? (
+                    <Grid container spacing={3}>
+                        {claimRequests.map((request) => (
+                            <Grid item xs={12} sm={6} md={4} key={request.requestId}>
+                                <Card>
+                                <CardMedia
+                                        component="img"
+                                        height="140"
+                                        image={request.image || "/placeholder.svg"}
+                                        alt={request.itemName}
+                                    />
+                                    <CardContent>
+                                        <Typography variant="h5">{request.item.itemName}</Typography>
+                                        <Typography color="textSecondary">{request.reason}</Typography>
+                                        <Typography color="textSecondary">
+                                            <strong>Status:</strong> {request.status}
+                                        </Typography>
+
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            startIcon={<CheckCircle />}
+                                            onClick={() => approveClaim(request.requestId)}
+                                        >
+                                            Approve
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                ) :  (
                     <Typography>No section selected.</Typography>
                 )}
             </div>
