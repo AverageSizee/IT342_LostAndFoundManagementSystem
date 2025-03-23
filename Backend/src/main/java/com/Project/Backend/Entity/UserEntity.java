@@ -127,6 +127,15 @@ public class UserEntity {
     public void setItemsClaimed(List<ItemsEntity> itemsClaimed) {
         this.itemsClaimed = itemsClaimed;
     }
+
+    public List<RequestClaimEntity> getClaims() {
+        return claims;
+    }
+
+    public void setClaims(List<RequestClaimEntity> claims) {
+        this.claims = claims;
+    }
+    
     
     
 

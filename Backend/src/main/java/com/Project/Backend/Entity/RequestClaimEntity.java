@@ -19,14 +19,18 @@ public class RequestClaimEntity {
     private ItemsEntity item; // The item being claimed
 
     private String status = "PENDING"; // Status: PENDING, APPROVED, REJECTED
+    private String claimDate;
+    private String reason;
 
     // Constructors
     public RequestClaimEntity() {}
 
-    public RequestClaimEntity(UserEntity user, ItemsEntity item) {
+    public RequestClaimEntity(UserEntity user, ItemsEntity item,String claimDate,String reason) {
         this.user = user;
         this.item = item;
         this.status = "PENDING";
+        this.claimDate = claimDate;
+        this.reason = reason;
     }
 
     // Getters and Setters
@@ -61,4 +65,22 @@ public class RequestClaimEntity {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getClaimDate() {
+        return claimDate;
+    }
+
+    public void setClaimDate(String claimDate) {
+        this.claimDate = claimDate;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    
 }
