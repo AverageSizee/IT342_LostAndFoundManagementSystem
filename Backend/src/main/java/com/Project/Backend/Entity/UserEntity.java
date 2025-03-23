@@ -1,9 +1,15 @@
 package com.Project.Backend.Entity;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,6 +30,18 @@ public class UserEntity {
     private String password;
 
     private String role;
+
+    @OneToMany(mappedBy = "reportedBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ItemsEntity> itemsReported; // Items reported by this user
+
+    @OneToMany(mappedBy = "claimedBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ItemsEntity> itemsClaimed; // Items claimed by this user
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<RequestClaimEntity> claims; // Claims made by the user
 
     public UserEntity() {
     }
@@ -94,6 +112,22 @@ public class UserEntity {
         this.role = role;
     }
 
+    public List<ItemsEntity> getItemsReported() {
+        return itemsReported;
+    }
+
+    public void setItemsReported(List<ItemsEntity> itemsReported) {
+        this.itemsReported = itemsReported;
+    }
+
+    public List<ItemsEntity> getItemsClaimed() {
+        return itemsClaimed;
+    }
+
+    public void setItemsClaimed(List<ItemsEntity> itemsClaimed) {
+        this.itemsClaimed = itemsClaimed;
+    }
+    
     
 
     

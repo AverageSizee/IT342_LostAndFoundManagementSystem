@@ -9,18 +9,22 @@ export const AuthProvider = ({ children }) => {
 
     const isAuthenticated = !!token; 
 
-    const loginAction  = async (data) => {
+    const loginAction  = async (data, navigate) => {
         try {
             const response = await axios.post("http://localhost:8080/user/login", data, {
                 headers: { "Content-Type": "application/json" }
             });
             if (response.status === 200 || response.status === 201) {
-                const { token, user } = response.data; 
-    
-                localStorage.setItem("token", token);
+                const { token, user, role } = response.data; 
 
+                localStorage.setItem("token", token);
+    
                 setToken(token);
-                setIsAuthenticated(true);
+    
+                // Redirect user based on role
+                if (role === "admin") {
+                    navigate("/admin"); 
+                }
                 return;
             }
             throw new Error(response.data.message)

@@ -67,7 +67,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity
                         .csrf(AbstractHttpConfigurer ::disable)
-                        .cors(Customizer.withDefaults())
+                        .cors(cors -> cors.configurationSource(configurationSource()))
                         .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/user/login").permitAll()
                             .requestMatchers("/user/register").permitAll()
