@@ -1,16 +1,27 @@
 import { useState } from "react";
 import axios from "axios";
-import { Modal, Box, Typography, TextField, Button, IconButton } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { Modal, Box, Typography, TextField, Button, IconButton, CircularProgress } from "@mui/material";
+import { Close as CloseIcon, Microsoft as MicrosoftIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
+import { PublicClientApplication } from "@azure/msal-browser";
+
+const msalConfig = {
+  auth: {
+    clientId: "cf5e4372-18c3-4956-b832-73a6fc3563c0",
+    authority: "https://login.microsoftonline.com/823cde44-4433-456d-b801-bdf0ab3d41fc",
+    redirectUri: window.location.origin,
+  },
+};
+
+const msalInstance = new PublicClientApplication(msalConfig);
 
 const Login = ({ open, onClose, onRegisterClick }) => {
   const [credentials, setCredentials] = useState({ schoolId: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const {loginAction} = useAuth();
+  const { loginAction } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,20 +31,132 @@ const Login = ({ open, onClose, onRegisterClick }) => {
   const handleLogin = async (event) => {
     event.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       await loginAction(credentials, navigate);
       window.dispatchEvent(new Event("storage"));
       onClose();
+      setLoading(false);
       console.log("Login successful");
-      // Handle successful login (e.g., store token, redirect user)
     } catch (err) {
       setError("Invalid credentials. Please try again.");
       console.error("Login error:", err);
     }
   };
 
+  const handleMicrosoftLogin = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await msalInstance.initialize();
+      const loginResponse = await msalInstance.loginPopup({
+        scopes: ["User.Read"],
+      });
+      //console.log("Microsoft login successful:", loginResponse);
+      
+      const userAccessToken = loginResponse.accessToken;
+  
+      // Fetch user details from Microsoft Graph API using Axios
+      const userResponse = await axios.get("https://graph.microsoft.com/v1.0/me", {
+        headers: {
+          Authorization: `Bearer ${userAccessToken}`,
+        },
+      });
+  
+      const userData = userResponse.data;
+      //console.log("User details:", userData);
+  
+      // Extract jobTitle from userData
+      const jobTitle = userData.jobTitle || "Unknown"; 
+      // Check if user exists in the database
+      const checkUserResponse = await axios.get("http://localhost:8080/user/check-user", {
+        params: { jobTitle },
+      });
+  
+      if (checkUserResponse.data.exists) {
+        // If user exists, proceed to login endpoint
+        console.log("User exists, logging in...");
+        credentials.password =  userData.id;
+        credentials.schoolId = userData.jobTitle;
+        try {
+          await loginAction(credentials, navigate);
+          window.dispatchEvent(new Event("storage"));
+          onClose();
+          setLoading(false);
+          console.log("Login successful");
+          setCredentials({});
+        } catch (err) {
+          console.error("Login error:", err);
+        }
+      } else {
+        try {
+          console.log("User not found, registering...");
+      
+          // Prepare user registration data
+          const requestBody = {
+            schoolId: userData.jobTitle,
+            firstname: userData.displayName,
+            lastname: userData.surname,
+            email: userData.mail,
+            password: userData.id,
+            role: "student",
+          };
+      
+          // Send registration request
+          const response = await axios.post("http://localhost:8080/user/register", requestBody);
+      
+          // Notify user of successful registration
+          alert("Registration successful!");
+      
+          // (Optional) Perform any additional actions after registration
+          credentials.password =  userData.id;
+          credentials.schoolId = userData.jobTitle;
+          try {
+            await loginAction(credentials, navigate);
+            window.dispatchEvent(new Event("storage"));
+            onClose();
+            setLoading(false);
+            console.log("Login successful");
+            setCredentials({});
+          } catch (err) {
+            console.error("Login error:", err);
+          }
+        } catch (error) {
+          alert(error.response?.data?.message || "Registration failed.");
+        }
+      }
+  
+      onClose();
+    } catch (err) {
+      console.error("Microsoft login error:", err);
+    }
+  };
+
   return (
+<>
+      {/* Loading Modal */}
+      <Modal open={loading}>
+        <Box
+          sx={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "#800000", // Maroon background
+            padding: "20px",
+            borderRadius: "10px",
+            textAlign: "center",
+            color: "white",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <CircularProgress sx={{ color: "white", mb: 2 }} />
+          <Typography variant="h6">Logging in...</Typography>
+        </Box>
+      </Modal>
     <Modal open={open} onClose={onClose} aria-labelledby="login-modal-title" aria-describedby="login-modal-description">
       <Box
         sx={{
@@ -86,6 +209,28 @@ const Login = ({ open, onClose, onRegisterClick }) => {
               {error && <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>}
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 2, bgcolor: "#f0ad4e", color: "white", "&:hover": { bgcolor: "#ec971f" }, textTransform: "none", borderRadius: "5px", padding: "10px", fontSize: "16px", fontWeight: "bold" }}>Log In</Button>
             </form>
+
+            {/* Microsoft Login Button at the Bottom */}
+            <Typography sx={{ fontSize: "14px", color: "#888", mt: 1, mb: 2 }}>or</Typography>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleMicrosoftLogin}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textTransform: "none",
+                borderColor: "#0078D4",
+                color: "#0078D4",
+                fontWeight: "bold",
+                "&:hover": { bgcolor: "#E3F2FD" },
+              }}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft Logo" style={{ width: 20, marginRight: 8 }} />
+              Sign in with Microsoft
+            </Button>
+
             <Typography variant="body2" sx={{ mt: 1 }}>Don't have an account? <Button onClick={onRegisterClick} sx={{ color: "#800000", fontWeight: "bold", textTransform: "none", p: 0 }}>Sign-up</Button></Typography>
             <Typography variant="body2" sx={{ mt: 1 }}><a href="#" style={{ color: "#800000", fontWeight: "bold", textDecoration: "none" }}>Forgot Password</a></Typography>
           </Box>
@@ -95,6 +240,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
         </Box>
       </Box>
     </Modal>
+    </>
   );
 };
 

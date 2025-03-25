@@ -19,7 +19,6 @@ function App() {
           
 
           <Route path="/LostandFoundItems" element={<ProtectedRoute> <LostItemsPage/> </ProtectedRoute>}/>
-          <Route path="/Logout" element={<ProtectedRoute> <LogoutPage/> </ProtectedRoute>}/>
           <Route path="/Admin" element={<AdminProtectedRoute> <AdminPage/> </AdminProtectedRoute>}/>
           
         </Routes>
