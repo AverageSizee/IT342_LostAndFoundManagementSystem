@@ -67,14 +67,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity
                         .csrf(AbstractHttpConfigurer ::disable)
-                        .cors(Customizer.withDefaults())
+                        .cors(cors -> cors.configurationSource(configurationSource()))
                         .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/user/login").permitAll()
                             .requestMatchers("/user/register").permitAll()
                             .anyRequest().authenticated()
                         )
                         .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                         .httpBasic(Customizer.withDefaults())
                         .build();
     }
@@ -90,10 +90,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource configurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowCredentials(true);
-        configuration.addAllowedHeader("*");
+        configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

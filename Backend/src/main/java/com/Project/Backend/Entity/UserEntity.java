@@ -1,9 +1,15 @@
 package com.Project.Backend.Entity;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,15 +29,30 @@ public class UserEntity {
 
     private String password;
 
+    private String role;
+
+    @OneToMany(mappedBy = "reportedBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ItemsEntity> itemsReported; // Items reported by this user
+
+    @OneToMany(mappedBy = "claimedBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ItemsEntity> itemsClaimed; // Items claimed by this user
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<RequestClaimEntity> claims; // Claims made by the user
+
     public UserEntity() {
     }
 
-    public UserEntity(String schoolId, String firstname, String lastname, String email, String password) {
+    public UserEntity(String schoolId, String firstname, String lastname, String email, String password, String role) {
         this.schoolId = schoolId;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     public int getUserId() {
@@ -82,6 +103,41 @@ public class UserEntity {
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public List<ItemsEntity> getItemsReported() {
+        return itemsReported;
+    }
+
+    public void setItemsReported(List<ItemsEntity> itemsReported) {
+        this.itemsReported = itemsReported;
+    }
+
+    public List<ItemsEntity> getItemsClaimed() {
+        return itemsClaimed;
+    }
+
+    public void setItemsClaimed(List<ItemsEntity> itemsClaimed) {
+        this.itemsClaimed = itemsClaimed;
+    }
+
+    public List<RequestClaimEntity> getClaims() {
+        return claims;
+    }
+
+    public void setClaims(List<RequestClaimEntity> claims) {
+        this.claims = claims;
+    }
+    
+    
+    
 
     
 }

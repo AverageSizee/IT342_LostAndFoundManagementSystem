@@ -1,35 +1,57 @@
 import { useState, useEffect } from "react"
 import { AppBar, Toolbar, Typography, Box, Button, Container, IconButton, Menu, MenuItem } from "@mui/material"
 import { AccountCircle } from "@mui/icons-material"
+import axios from "axios";
 import Login from "./Login.jsx"
 import Register from "./Register.jsx"
+import ReportLosTItems from "./ReportLosTItems.jsx"
 import { useAuth } from "./AuthProvider"
+import { useNavigate } from "react-router-dom";
+
+const API_URL = "http://localhost:8080/user";
 
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [loginOpen, setLoginOpen] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
+  const [foundItemOpen, setFoundItemOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState("Guest")
   const {logout} = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const updateAuthStatus = () => {
-      const authStatus = localStorage.getItem("isAuthenticated") === "true";
-      setIsAuthenticated(authStatus);
-      
-      if (authStatus) {
-        const storedUsername = localStorage.getItem("user") || "User";
-        setUsername(storedUsername);
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem("token"); 
+
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+       
+        const response = await axios.get(`${API_URL}/getcurrentuser`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setIsAuthenticated(true);
+        setUsername(response.data.schoolId); 
+
+      } catch (error) {
+        console.error("Error fetching student ID:", error.response?.data || error.message);
+        setIsAuthenticated(false);
       }
     };
-  
-    updateAuthStatus(); // Run on mount
-  
-    // Listen for storage changes (when login state updates)
+
+    fetchUserInfo(); // Fetch on mount
+
+    // Handle auth status updates when storage changes
+    const updateAuthStatus = () => fetchUserInfo();
+
     window.addEventListener("storage", updateAuthStatus);
-  
+
     return () => {
       window.removeEventListener("storage", updateAuthStatus);
     };
@@ -61,14 +83,22 @@ const Header = () => {
     setRegisterOpen(false)
   }
 
+  const handleFoundItemClick = () => {
+    setFoundItemOpen(true);
+  };
+  
+  const handleFoundItemClose = () => {
+    setFoundItemOpen(false);
+  };
+
   const handleLoginFromRegister = () => {
     setRegisterOpen(false)
     setLoginOpen(true)
   }
 
   const handleLogout = () => {
+    if (!isAuthenticated) return; 
     logout();
-    window.dispatchEvent(new Event("storage"));
   }
 
   return (
@@ -119,7 +149,7 @@ const Header = () => {
           {/* Navigation Links and Profile */}
           <Box display="flex" gap={2} alignItems="center">
           <Button
-            href="/home"
+            href="/"
             sx={{
               position: "relative",
               color: "white",
@@ -154,6 +184,7 @@ const Header = () => {
             Home
           </Button>
           <Button
+            onClick={() => navigate("/LostandFoundItems")}
              sx={{
               position: "relative",
               color: "white",
@@ -184,7 +215,41 @@ const Header = () => {
               },
             }}
             >
-              Lost & Found an Item?
+              Lost an Item?
+            </Button>
+            <Button
+            onClick={handleFoundItemClick}
+             sx={{
+              position: "relative",
+              color: "white",
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+              padding: "0.25rem 0.75rem",
+              borderRadius: "20px", 
+              textTransform: "none",
+              overflow: "hidden",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: "300%",
+                height: "300%",
+                backgroundColor: "rgb(255, 255, 255)",
+                borderRadius: "inherit", // Matches the button's border-radius
+                transition: "transform 0.3s ease-in-out",
+                transform: "translate(-50%, -50%) scale(0)",
+                zIndex: -1,
+              },
+              "&:hover": {
+                color: "#800000",
+                "&::before": {
+                  transform: "translate(-50%, -50%) scale(1)",
+                },
+              },
+            }}
+            >
+              Found an Item?
             </Button>
 
             {/* Conditional Rendering for Authentication */}
@@ -346,6 +411,9 @@ const Header = () => {
           </Box>
         </Toolbar>
       </Container>
+
+      {/* Found Item Modal */}
+      <ReportLosTItems open={foundItemOpen} onClose={handleFoundItemClose} userID={username} />
 
       {/* Login Modal */}
       <Login open={loginOpen} onClose={handleLoginClose} onRegisterClick={handleRegisterClick} />
