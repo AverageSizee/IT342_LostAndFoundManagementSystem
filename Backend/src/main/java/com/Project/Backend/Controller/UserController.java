@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Project.Backend.DTO.LoginRequest;
@@ -55,6 +56,14 @@ public class UserController {
     @GetMapping("/getall")
     public ResponseEntity<List<UserEntity>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/check-user")
+    public Map<String, Boolean> checkUser(@RequestParam String jobTitle) {
+        boolean exists = userService.userExistsBySchoolId(jobTitle);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return response;
     }
 
     @GetMapping("/getcurrentuser")

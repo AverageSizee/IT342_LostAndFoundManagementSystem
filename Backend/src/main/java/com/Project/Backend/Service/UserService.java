@@ -29,6 +29,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public boolean userExistsBySchoolId(String jobTitle) {
+        return userRepository.findBySchoolId(jobTitle) != null;
+    }
+
     public List<UserEntity> getAllUsers() { 
         return userRepository.findAll();
     }

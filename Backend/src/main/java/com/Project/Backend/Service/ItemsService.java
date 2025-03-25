@@ -38,7 +38,7 @@ public class ItemsService {
         }
     
         UserEntity user = usersRepository.findBySchoolId(userID);
-        if (user == null) {
+        if (user == null) { 
             throw new RuntimeException("User not found");
         }
     

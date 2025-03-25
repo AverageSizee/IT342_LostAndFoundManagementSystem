@@ -2,6 +2,8 @@ import { useState } from "react"
 import axios from "axios"
 import { Modal, Box, Typography, TextField, Button, IconButton, Grid } from "@mui/material"
 import { Close as CloseIcon } from "@mui/icons-material"
+import { useAuth } from "./AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 const Register = ({ open, onClose, onLoginClick }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +15,9 @@ const Register = ({ open, onClose, onLoginClick }) => {
     role: "student",
     confirmPassword: "",
   })
+  const [credentials, setCredentials] = useState({ schoolId: "", password: "" });
+  const { loginAction } = useAuth();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false)
 
@@ -37,7 +42,17 @@ const Register = ({ open, onClose, onLoginClick }) => {
       const response = await axios.post("http://localhost:8080/user/register", requestBody)
       alert("Registration successful!")
       setFormData({ schoolId: "", firstname: "", lastname: "", email: "", password: "", confirmPassword: "" }) // Reset form
-      onClose() // Close modal after successful registration
+      credentials.password =  formData.password;
+      credentials.schoolId = formData.schoolId;
+      try {
+        await loginAction(credentials, navigate);
+        window.dispatchEvent(new Event("storage"));
+        onClose();
+        console.log("Login successful");
+        setCredentials({});
+      } catch (err) {
+        console.error("Login error:", err);
+      }
     } catch (error) {
       alert(error.response?.data?.message || "Registration failed.")
     } finally {
