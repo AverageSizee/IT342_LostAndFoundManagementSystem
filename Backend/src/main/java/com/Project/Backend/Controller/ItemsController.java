@@ -1,6 +1,7 @@
 package com.Project.Backend.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Project.Backend.Entity.ItemsEntity;
 import com.Project.Backend.Service.ItemsService;
@@ -15,10 +16,10 @@ public class ItemsController {
     private ItemsService itemsService;
 
     @PostMapping("/report/{userID}")
-    public ItemsEntity reportItem(@PathVariable String userID, @RequestBody ItemsEntity item) {
-        System.out.println(userID);
-        System.out.println(item);
-        return itemsService.reportItem(userID, item);
+    public ItemsEntity reportItem(@PathVariable String userID, @RequestBody ItemsEntity item,@RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        // System.out.println(userID);
+        // System.out.println(item);
+        return itemsService.reportItem(userID, item, imageFile);
     }
 
     @PostMapping("/claim/{itemId}/{userID}")

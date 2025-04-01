@@ -19,6 +19,7 @@ public class ItemsEntity {
     private String claimDate;
     private boolean isClaimed = false;
     private String location;
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "reported_by", nullable = true)
@@ -134,6 +135,15 @@ public class ItemsEntity {
     public void setLocation(String location) {
         this.location = location;
     }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     
 
 }
