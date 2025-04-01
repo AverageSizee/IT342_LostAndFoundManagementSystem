@@ -16,7 +16,7 @@ public class ItemsController {
     private ItemsService itemsService;
 
     @PostMapping("/report/{userID}")
-    public ItemsEntity reportItem(@PathVariable String userID, @RequestBody ItemsEntity item,@RequestPart(value = "image", required = false) MultipartFile imageFile) {
+    public ItemsEntity reportItem(@PathVariable String userID, @RequestPart("item") ItemsEntity item,@RequestPart(value = "image", required = false) MultipartFile imageFile) {
         // System.out.println(userID);
         // System.out.println(item);
         return itemsService.reportItem(userID, item, imageFile);

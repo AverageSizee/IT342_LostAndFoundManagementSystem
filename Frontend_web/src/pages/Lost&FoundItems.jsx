@@ -157,7 +157,7 @@ const LostItemsPage = () => {
                         <CardMedia
                           component="img"
                           height="140"
-                          image={item.image || "/placeholder.svg?height=200&width=200"}
+                          image={item.imageUrl || "/placeholder.svg?height=200&width=200"}
                           alt={item.itemName}
                         />
                         <CardContent sx={{ flexGrow: 1 }}>
@@ -213,7 +213,7 @@ const LostItemsPage = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image={selectedItem.image || "/placeholder.svg"}
+                image={selectedItem.imageUrl || "/placeholder.svg"}
                 alt={selectedItem.itemName}
                 sx={{ borderRadius: 2, mb: 2 }}
               />

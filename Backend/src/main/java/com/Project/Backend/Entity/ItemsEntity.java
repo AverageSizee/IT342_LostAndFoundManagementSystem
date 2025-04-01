@@ -2,6 +2,9 @@ package com.Project.Backend.Entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -36,13 +39,17 @@ public class ItemsEntity {
     // Constructors
     public ItemsEntity() {}
 
-    public ItemsEntity(Long itemID, String itemName, String description, String foundDate, String status, String claimDate, String location) {
-        this.itemID = itemID;
+    @JsonCreator
+    public ItemsEntity(
+        @JsonProperty("itemName") String itemName, 
+        @JsonProperty("description") String description, 
+        @JsonProperty("foundDate") String foundDate, 
+        @JsonProperty("location") String location, 
+        @JsonProperty("status") String status) {
         this.itemName = itemName;
         this.description = description;
         this.foundDate = foundDate;
         this.status = status;
-        this.claimDate = claimDate;
         this.location = location;
     }
 

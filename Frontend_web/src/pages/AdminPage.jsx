@@ -83,7 +83,7 @@ const AdminPage = () => {
             });
 
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
             setClaimRequests(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Error fetching claim requests:", error);
@@ -216,7 +216,7 @@ const AdminPage = () => {
                             <CardMedia
                             component="img"
                             height="140"
-                            image={item.image || "/placeholder.svg"}
+                            image={item.imageUrl || "/placeholder.svg"}
                             alt={item.itemName}
                             />
                             <CardContent>
@@ -242,8 +242,10 @@ const AdminPage = () => {
 
                             {/* Reported By */}
                             <Typography color="textSecondary">
-                                <strong>Reported By:</strong>{" "}
-                                {item.reportedBy ? item.reportedBy.firstname+" "+item.reportedBy.lastname : "Anonymous"}
+                                <strong>{item.reportedBy ? "Reported By:" : "Claimed By:"}</strong>{" "}
+                                {item.reportedBy
+                                    ? item.reportedBy.firstname + " " + item.reportedBy.lastname
+                                    : item.claimedBy.firstname + " " + item.claimedBy.lastname}
                             </Typography>
 
                             {/* Claimed By (if applicable) */}
@@ -273,7 +275,7 @@ const AdminPage = () => {
                                     <CardMedia
                                         component="img"
                                         height="140"
-                                        image={item.image || "/placeholder.svg"}
+                                        image={item.imageUrl || "/placeholder.svg"}
                                         alt={item.itemName}
                                     />
                                     <CardContent>
@@ -300,7 +302,7 @@ const AdminPage = () => {
                                 <CardMedia
                                         component="img"
                                         height="140"
-                                        image={request.image || "/placeholder.svg"}
+                                        image={request.item.imageUrl || "/placeholder.svg"}
                                         alt={request.itemName}
                                     />
                                     <CardContent>
