@@ -40,4 +40,9 @@ public class RequestClaimController {
             return ResponseEntity.status(404).body(response);  
         }
     }
+    @DeleteMapping("/delete/{requestId}")
+    public ResponseEntity<String> deleteClaim(@PathVariable Long requestId) {
+        String result = requestClaimService.deleteClaim(requestId);
+        return ResponseEntity.ok(result);
+    }
 }
