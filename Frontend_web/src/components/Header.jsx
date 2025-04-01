@@ -18,40 +18,58 @@ const Header = () => {
   const [foundItemOpen, setFoundItemOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState("Guest")
+  const [userProfile, setUserProfile] = useState(null)
   const {logout} = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("token"); 
-
+  
       if (!token) {
         setIsAuthenticated(false);
         return;
       }
-
+  
       try {
-       
         const response = await axios.get(`${API_URL}/getcurrentuser`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
+  
         setIsAuthenticated(true);
-        setUsername(response.data.schoolId); 
-
+        setUsername(response.data.schoolId);
+  
+        // Fetch profile image only after user is authenticated
+        fetchProfileImage(token);
+  
       } catch (error) {
         console.error("Error fetching student ID:", error.response?.data || error.message);
         setIsAuthenticated(false);
       }
     };
+  
+    const fetchProfileImage = async (token) => {
+      try {
+        const response = await axios.get(`${API_URL}/profile/image`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        setUserProfile(response.data); // Assuming the response contains the image URL
 
+        // console.log(response.data);
+  
+      } catch (error) {
+        console.error("Error fetching profile image:", error.response?.data || error.message);
+      }
+    };
+  
     fetchUserInfo(); // Fetch on mount
-
+  
     // Handle auth status updates when storage changes
     const updateAuthStatus = () => fetchUserInfo();
-
+  
     window.addEventListener("storage", updateAuthStatus);
-
+  
     return () => {
       window.removeEventListener("storage", updateAuthStatus);
     };
@@ -293,13 +311,26 @@ const Header = () => {
                 <IconButton
                   onClick={handleClick}
                   sx={{
-                    color: "inherit", 
+                    color: "inherit",
                     fontSize: "0.9rem",
                     fontWeight: "bold",
                     textTransform: "none",
                   }}
                 >
-                  <AccountCircle sx={{ fontSize: 30 }} />
+                  {userProfile ? (
+                    <img
+                      src={userProfile} // The actual profile image
+                      alt="Profile"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <AccountCircle sx={{ fontSize: 30 }} />
+                  )}
                 </IconButton>
 
                 <Typography

@@ -31,6 +31,8 @@ public class UserEntity {
 
     private String role;
 
+    private String profilePicture;
+
     @OneToMany(mappedBy = "reportedBy", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<ItemsEntity> itemsReported; // Items reported by this user
@@ -135,6 +137,15 @@ public class UserEntity {
     public void setClaims(List<RequestClaimEntity> claims) {
         this.claims = claims;
     }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
     
     
     

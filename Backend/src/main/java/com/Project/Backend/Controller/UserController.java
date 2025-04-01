@@ -1,5 +1,6 @@
 package com.Project.Backend.Controller;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Project.Backend.DTO.LoginRequest;
 import com.Project.Backend.Entity.UserEntity;
@@ -66,6 +68,22 @@ public class UserController {
         return response;
     }
 
+    @PostMapping("/upload/user/{userId}")
+    public ResponseEntity<?> updateUserProfile(
+        @PathVariable String userId,
+        @RequestParam(value = "file", required = false) MultipartFile file,
+        @RequestParam(value = "firstname", required = false) String firstname,
+        @RequestParam(value = "lastname", required = false) String lastname,
+        @RequestParam(value = "password", required = false) String password
+    ) {
+        try {
+            UserEntity updatedUser = userService.updateUserProfile(userId, file, firstname, lastname, password);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("Profile update failed: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/getcurrentuser")
      public ResponseEntity<Map<String, String>> getSchoolId(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -77,6 +95,36 @@ public class UserController {
         String schoolId = tokenService.extractSchoolId(token);
 
         return ResponseEntity.ok(Collections.singletonMap("schoolId", schoolId));
+    }
+
+    @GetMapping("/profile/image")
+    public ResponseEntity<?> getUserProfileImage(@RequestHeader("Authorization") String token) {
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Invalid or missing token");
+            }
+    
+            // Extract the actual token (remove "Bearer " prefix)
+            token = token.substring(7);
+    
+            String schoolId = tokenService.extractSchoolId(token);
+            if (schoolId == null || schoolId.isEmpty()) {
+                return ResponseEntity.status(401).body("Invalid token: schoolId missing");
+            }
+    
+            // System.out.println("Fetching profile image for schoolId: " + schoolId); // Debugging log
+    
+            String profileImage = userService.getUserProfileImage(schoolId);
+    
+            if (profileImage == null || profileImage.isEmpty()) {
+                return ResponseEntity.badRequest().body("No profile image found");
+            }
+    
+            return ResponseEntity.ok(profileImage);
+        } catch (Exception e) {
+            e.printStackTrace(); // Debugging
+            return ResponseEntity.status(500).body("Error fetching profile image: " + e.getMessage());
+        }
     }
     @GetMapping("/getcurrentrole")
     public ResponseEntity<Map<String, String>> getUserRole(@RequestHeader("Authorization") String authHeader) {
