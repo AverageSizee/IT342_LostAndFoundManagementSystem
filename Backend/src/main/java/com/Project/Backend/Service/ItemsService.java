@@ -6,7 +6,9 @@ import com.Project.Backend.Entity.ItemsEntity;
 import com.Project.Backend.Entity.UserEntity;
 import com.Project.Backend.Repository.ItemsRepository;
 import com.Project.Backend.Repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -16,13 +18,27 @@ public class ItemsService {
     private ItemsRepository itemsRepository;
 
     @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @Autowired
     private UserRepository usersRepository;
 
-    public ItemsEntity reportItem(String userID, ItemsEntity item) {
+    public ItemsEntity reportItem(String userID, ItemsEntity item, MultipartFile file) {
         UserEntity user = usersRepository.findBySchoolId(userID);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
+
+        // Upload image to Cloudinary
+        String imageUrl= null;
+        try {
+            imageUrl = cloudinaryService.uploadImage(file, "item_images");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        item.setImageUrl(imageUrl);
 
         item.setReportedBy(user);
         item.setStatus("Reported");

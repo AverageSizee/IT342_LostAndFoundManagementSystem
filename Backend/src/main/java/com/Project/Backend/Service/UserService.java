@@ -1,5 +1,6 @@
 package com.Project.Backend.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Project.Backend.Entity.UserEntity;
 import com.Project.Backend.Repository.UserRepository;
@@ -16,13 +18,17 @@ public class UserService {
     @Autowired
     private final UserRepository userRepository;
 
+    @Autowired
+    private final CloudinaryService cloudinaryService;
+
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     
     
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, CloudinaryService cloudinaryService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public UserEntity saveUser(UserEntity user) {
@@ -38,6 +44,42 @@ public class UserService {
     }
     public UserEntity registerUser(UserEntity user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    
+    public String getUserProfileImage(String userId) {
+        UserEntity user = userRepository.findBySchoolId(userId);
+        return user.getProfilePicture();
+    }
+
+    public UserEntity updateUserProfile(String userId, MultipartFile file, String firstname, String lastname, String password) throws IOException {
+        UserEntity user = userRepository.findBySchoolId(userId);
+        
+        // Check if a new profile image is provided
+        if (file != null && !file.isEmpty()) {
+            // Delete the previous image from Cloudinary (if it exists)
+            String existingImageUrl = user.getProfilePicture();
+            if (existingImageUrl != null && !existingImageUrl.isEmpty()) {
+                cloudinaryService.deleteImage(existingImageUrl);
+            }
+    
+            // Upload new image
+            String newImageUrl = cloudinaryService.uploadImage(file, "user_profiles");
+            user.setProfilePicture(newImageUrl);
+        }
+    
+        // Update other fields if provided
+        if (firstname != null && !firstname.isEmpty()) {
+            user.setFirstname(firstname);
+        }
+        if (lastname != null && !lastname.isEmpty()) {
+            user.setLastname(lastname);
+        }
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(bCryptPasswordEncoder.encode(password)); // Ensure password is hashed before saving
+        }
+    
         return userRepository.save(user);
     }
 
