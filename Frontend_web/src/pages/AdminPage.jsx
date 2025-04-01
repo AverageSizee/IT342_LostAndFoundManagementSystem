@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { 
     Card, CardContent, Typography, TextField, IconButton, Avatar, List, ListItem, 
-    ListItemIcon, ListItemText, Button, Grid, CardMedia 
+    ListItemIcon, ListItemText, Button, Grid, CardMedia,Modal,Box,Input
 } from "@mui/material";
 import { Search, People, Inventory, HourglassEmpty, MoreVert, Edit, Delete, CheckCircle, Assignment } from "@mui/icons-material";
 
@@ -11,6 +11,16 @@ const AdminPage = () => {
     const [items, setItems] = useState([]);
     const [claimRequests, setClaimRequests] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+
+    // Modal state
+    const [open, setOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [itemName, setItemName] = useState("");
+    const [description, setDescription] = useState("");
+    const [foundDate, setFoundDate] = useState("");
+    const [location, setLocation] = useState("");
+    const [file, setFile] = useState(null); // For file input
+    const [imagePreview, setImagePreview] = useState(null); // For image preview
 
     useEffect(() => {
         if (selectedSection === "users") {
@@ -110,6 +120,124 @@ const AdminPage = () => {
             console.error("Error approving claim:", error);
         }
     };
+
+    const markUnclaimed = async (itemId) => {
+        try {
+            console.log("Marking item as unclaimed:", itemId);
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8080/items/unclaim/${itemId}`, {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            if (response.ok) {
+                // Update items state instead of claimRequests
+                setItems(items.map(item =>
+                    item.itemID === itemId 
+                        ? { ...item, claimedBy: null, status: "Confirmed" } 
+                        : item
+                ));
+            } else {
+                console.error("Failed to mark unclaimed");
+            }
+        } catch (error) {
+            console.error("Error marking unclaimed:", error);
+        }
+    };
+    const deleteClaimRequest = async (requestId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8080/claims/delete/${requestId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            if (response.ok) {
+                // Remove the deleted request from state
+                setClaimRequests(claimRequests.filter(request => request.requestId !== requestId));
+            } else {
+                console.error("Failed to delete claim request");
+            }
+        } catch (error) {
+            console.error("Error deleting claim request:", error);
+        }
+    };
+    
+    const deleteItem = async (itemId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8080/items/delete/${itemId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            if (response.ok) {
+                setItems(items.filter(item => item.itemID !== itemId));
+            } else {
+                console.error("Failed to delete item");
+            }
+        } catch (error) {
+            console.error("Error deleting item:", error);
+        }
+    };
+    const handleEditItem = (item) => {
+        setSelectedItem(item);
+        setItemName(item.itemName);
+        setDescription(item.description);
+        setFoundDate(item.foundDate);
+        setLocation(item.location);
+        setImagePreview(item.imageUrl);  // Set the preview image if any
+        setOpen(true);
+    };
+
+    const handleFileChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);  // Preview the image
+            };
+            reader.readAsDataURL(selectedFile);
+        }
+    };
+
+    const handleSaveChanges = async () => {
+        const formData = new FormData();
+        formData.append("itemName", itemName);
+        formData.append("description", description);
+        formData.append("foundDate", foundDate);
+        formData.append("location", location);
+        if (file) {
+            formData.append("file", file);
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8080/items/update/${selectedItem.itemID}`, {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            });
+
+            if (response.ok) {
+                const updatedItem = await response.json();
+                setItems(items.map(item => item.itemID === updatedItem.itemID ? updatedItem : item));
+                setOpen(false);
+                setSelectedItem(null);
+            } else {
+                console.error("Failed to update item");
+            }
+        } catch (error) {
+            console.error("Error updating item:", error);
+        }
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedItem(null);
+    };
+    
 
     return (
         <div style={styles.container}>
@@ -242,10 +370,10 @@ const AdminPage = () => {
 
                             {/* Reported By */}
                             <Typography color="textSecondary">
-                                <strong>{item.reportedBy ? "Reported By:" : "Claimed By:"}</strong>{" "}
-                                {item.reportedBy
-                                    ? item.reportedBy.firstname + " " + item.reportedBy.lastname
-                                    : item.claimedBy.firstname + " " + item.claimedBy.lastname}
+                                <strong>{item.claimedBy ? "Claimed By:" : "Reported By:"}</strong>{" "}
+                                {item.claimedBy
+                                    ? item.claimedBy.firstname + " " + item.claimedBy.lastname
+                                    : item.reportedBy? item.reportedBy.firstname + " " + item.reportedBy.lastname : "Unknown"}
                             </Typography>
 
                             {/* Claimed By (if applicable) */}
@@ -262,6 +390,35 @@ const AdminPage = () => {
                                 <strong>Claim Date:</strong> {item.claimDate}
                                 </Typography>
                             )}
+                            {item.claimedBy ? (
+                                <Button 
+                                    variant="contained" 
+                                    color="primary" 
+                                    size="small" 
+                                    startIcon={<Edit />} 
+                                    onClick={() => markUnclaimed(item.itemID)}
+                                >
+                                    Mark as Unclaimed
+                                </Button>
+                            ) : null}  
+                            <Button 
+                                variant="contained" 
+                                color="secondary" 
+                                size="small" 
+                                startIcon={<Delete />} 
+                                onClick={() => deleteItem(item.itemID)}
+                            >
+                                Delete
+                            </Button>
+                            <Button 
+                                variant="contained" 
+                                color="primary" 
+                                size="small" 
+                                startIcon={<Edit />} 
+                                onClick={() => handleEditItem(item)}
+                            >
+                                Edit
+                            </Button>
                             </CardContent>
                         </Card>
                         </Grid>
@@ -320,6 +477,14 @@ const AdminPage = () => {
                                         >
                                             Approve
                                         </Button>
+                                        <Button 
+                                            variant="contained" 
+                                            color="secondary" 
+                                            startIcon={<Delete />} 
+                                            onClick={() => deleteClaimRequest(request.requestId)}
+                                        >
+                                            Delete
+                                        </Button>
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -329,6 +494,49 @@ const AdminPage = () => {
                     <Typography>No section selected.</Typography>
                 )}
             </div>
+            {/* Modal for Edit Item */}
+            <Modal open={open} onClose={handleClose}>
+                <Box sx={styles.modalBox}>
+                    <Typography variant="h6">Edit Item</Typography>
+                    <TextField
+                        label="Item Name"
+                        fullWidth
+                        value={itemName}
+                        onChange={(e) => setItemName(e.target.value)}
+                    />
+                    <TextField
+                        label="Description"
+                        fullWidth
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+                    <TextField
+                        label="Found Date"
+                        fullWidth
+                        value={foundDate}
+                        onChange={(e) => setFoundDate(e.target.value)}
+                    />
+                    <TextField
+                        label="Location"
+                        fullWidth
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                    />
+                    <Input
+                        type="file"
+                        onChange={handleFileChange}
+                    />
+                    <div style={styles.imagePreview}>
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="Preview" style={{ maxWidth: "100%", maxHeight: "200px" }} />
+                        ) : (
+                            <Typography>No image selected</Typography>
+                        )}
+                    </div>
+                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button onClick={handleClose}>Cancel</Button>
+                </Box>
+            </Modal>
         </div>
     );
 };
@@ -340,9 +548,8 @@ const styles = {
     header: { display: "flex", justifyContent: "space-between", padding: "10px 20px", borderBottom: "1px solid #ddd", backgroundColor: "#f8f9fa" },
     content: { marginLeft: "250px", padding: "20px" },
     card: { padding: "10px", border: "1px solid #ddd" },
-    buttonContainer: { marginTop: "10px", display: "flex", gap: "10px" },
-    selectedItem: { backgroundColor: "#ffffff33", borderRadius: "5px" },
-    defaultItem: { borderRadius: "5px" },
+    modalBox: { padding: "20px", backgroundColor: "white", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "400px", boxShadow: 24 },
+    imagePreview: { marginTop: "10px" },
 };
 
 export default AdminPage;

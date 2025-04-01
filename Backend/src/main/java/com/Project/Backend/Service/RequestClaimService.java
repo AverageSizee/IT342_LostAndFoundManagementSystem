@@ -52,11 +52,11 @@ public class RequestClaimService {
             RequestClaimEntity request = requestOpt.get();
             ItemsEntity item = request.getItem();
     
-            // Remove reportedBy if it's not null
-            if (item.getReportedBy() != null) {
-                item.getReportedBy().getItemsReported().remove(item); // Remove the item from the reported list
-                item.setReportedBy(null); // Set reportedBy to null
-            }
+            // // Remove reportedBy if it's not null
+            // if (item.getReportedBy() != null) {
+            //     item.getReportedBy().getItemsReported().remove(item); // Remove the item from the reported list
+            //     item.setReportedBy(null); // Set reportedBy to null
+            // }
     
             // Assign the item to the user and mark it as claimed
             item.setClaimedBy(request.getUser());
@@ -103,6 +103,17 @@ public class RequestClaimService {
 
     public List<RequestClaimEntity> getAllClaims() {
         return requestClaimRepository.findAll();
+    }
+
+    // Delete a claim request
+    public String deleteClaim(Long requestId) {
+        Optional<RequestClaimEntity> requestOpt = requestClaimRepository.findById(requestId);
+        
+        if (requestOpt.isPresent()) {
+            requestClaimRepository.deleteById(requestId);
+            return "Claim request deleted successfully.";
+        }
+        return "Claim request not found.";
     }
     
 }
