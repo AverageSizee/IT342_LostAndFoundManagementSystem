@@ -71,8 +71,8 @@ const UpdateProfilePage = () => {
           } 
         }
       );
-      console.log("Profile updated successfully", response.data);
-      navigate("/profile"); // Redirect to profile page
+      // console.log("Profile updated successfully", response.data);
+      window.location.reload();
     } catch (error) {
       console.error("Error updating profile", error);
       alert("Error updating profile, please try again!");

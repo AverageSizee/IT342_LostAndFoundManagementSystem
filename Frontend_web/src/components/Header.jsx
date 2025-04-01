@@ -118,7 +118,10 @@ const Header = () => {
     if (!isAuthenticated) return; 
     logout();
   }
-
+  const handleProfile = () => {
+    if (!isAuthenticated) return; 
+    navigate("/profile");
+  }
   return (
     <AppBar
       position="fixed"
@@ -363,6 +366,7 @@ const Header = () => {
                   }}
                 >
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  <MenuItem onClick={handleProfile}>Profile</MenuItem>
                 </Menu>
               </Box>
             ) : (
