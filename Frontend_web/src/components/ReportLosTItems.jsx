@@ -43,41 +43,54 @@ const ReportLostItem = ({ open, onClose, userID }) => {
       return;
     }
   
+    if (!userID) {
+      alert("User ID is missing!");
+      return;
+    }
+  
     try {
       setLoading(true);
   
-
-      const requestBody = {
-        itemName: formData.itemName,
-        description: formData.description,
-        foundDate: formData.foundDate,
-        location: formData.location,
-        status: formData.status || "Lost",
-      };
+      const formDataToSend = new FormData();
+  
+      if (selectedFile) {
+        formDataToSend.append("image", selectedFile);
+      }
+  
+      // Append JSON data as a Blob
+      formDataToSend.append(
+        "item",
+        new Blob(
+          [JSON.stringify({
+            itemName: formData.itemName,
+            description: formData.description,
+            foundDate: formData.foundDate,
+            location: formData.location,
+            status: formData.status || "Lost",
+          })],
+          { type: "application/json" }
+        )
+      );
   
       const response = await axios.post(
         `http://localhost:8080/items/report/${userID}`,
-        requestBody, 
+        formDataToSend,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
   
-      alert("Lost item reported successfully!");
-      setFormData({ itemName: "", description: "", foundDate: "", location: "", status: "Lost" });
-      setSelectedFile(null);
-      setPreviewURL("");
-      onClose();
+      console.log("Success:", response.data);
     } catch (error) {
       console.error("Error reporting lost item:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Failed to report lost item.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="report-lost-item-modal-title">
