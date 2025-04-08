@@ -107,6 +107,74 @@ const approveClaim = async (requestId) => {
     }
 };
 
+const denyItem = async (itemId) => {
+  try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:8080/items/deny/${itemId}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+          setItems(items.filter(item => item.itemID !== itemId));
+      } else {
+          console.error("Failed to deny item");
+      }
+  } catch (error) {
+      console.error("Error denying item:", error);
+  }
+};
+
+
+const handleUpdateUser = async (updatedUser) => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:8080/user/update/${updatedUser.schoolId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                firstname: updatedUser.firstname,
+                lastname: updatedUser.lastname,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                // Include password only if being updated
+                ...(updatedUser.password && { password: updatedUser.password })
+            }),
+        });
+        
+        if (response.ok) {
+            const updatedUserData = await response.json();
+            setUsers(users.map(user => 
+                user.schoolId === updatedUser.schoolId ? updatedUserData : user
+            ));
+        } else {
+            console.error("Failed to update user:", await response.text());
+        }
+    } catch (error) {
+        console.error("Error updating user:", error);
+    }
+};
+
+
+const handleDeleteUser = async (schoolId) => {
+  try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:8080/user/delete/${schoolId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+          setUsers(users.filter(user => user.schoolId !== schoolId));
+      } else {
+          console.error("Failed to delete user");
+      }
+  } catch (error) {
+      console.error("Error deleting user:", error);
+  }
+};
+
 
 
 return (
@@ -188,7 +256,9 @@ return (
 
           </Box>
           <Paper elevation={3} sx={{ p: 2, backgroundColor: '#FFF' }}>
-            {selectedSection === "users" && <UserList users={users} />}
+          {selectedSection === "users" && (
+          <UserList users={users} onUpdateUser={handleUpdateUser} onDeleteUser={handleDeleteUser} />
+          )}
             {selectedSection === "items" && <ItemList items={items} />}
             {selectedSection === "pendingReview" && <PendingReviewList items={items} />}
             {selectedSection === "claimRequests" && <ClaimRequestsList claims={claimRequests} onApproveClaim={approveClaim} />}
