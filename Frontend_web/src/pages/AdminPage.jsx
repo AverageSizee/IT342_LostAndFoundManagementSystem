@@ -8,10 +8,10 @@ import {
   Search, People, Inventory, HourglassEmpty, Assignment
 } from "@mui/icons-material";
 import Header from "../components/Header";
-import UserList from "../components/admin/UserList";
-import ItemList from "../components/admin/ItemList";
-import PendingReviewList from "../components/admin/PendingReviewList";
-import ClaimRequestsList from "../components/admin/ClaimRequestList";
+import UserList from "../components/admincomponents/UserList";
+import ItemList from "../components/admincomponents/ItemList";
+import PendingReviewList from "../components/admincomponents/PendingReviewList";
+import ClaimRequestsList from "../components/admincomponents/ClaimRequestList";
 
 const AdminPage = () => {
   const [selectedSection, setSelectedSection] = useState("users");
