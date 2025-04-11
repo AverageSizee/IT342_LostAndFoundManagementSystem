@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { createContext, useContext, useState } from "react";
+import { API_CONFIG } from '../config/apiConfig';
 
 const AuthContext = createContext();
 
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
     const loginAction  = async (data, navigate) => {
         try {
-            const response = await axios.post("http://localhost:8080/user/login", data, {
+            const response = await axios.post(`${API_CONFIG.BASE_URL}/user/login`, data, {
                 headers: { "Content-Type": "application/json" }
             });
             if (response.status === 200 || response.status === 201) {
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         if (!token) return; // Prevent double execution if already logged out
     
         try {
-            await axios.post("http://localhost:8080/user/logout", {}, {
+            await axios.post(`${API_CONFIG.BASE_URL}/user/logout`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
     

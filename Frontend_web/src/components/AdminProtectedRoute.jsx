@@ -2,7 +2,8 @@ import { Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/user"; 
+import { API_CONFIG } from '../config/apiConfig';
+const API_URL = `${API_CONFIG.BASE_URL}${API_CONFIG.USER_ENDPOINT}`;
 
 const AdminProtectedRoute = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(null);

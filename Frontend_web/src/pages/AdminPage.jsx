@@ -4,6 +4,7 @@ import {
     ListItemIcon, ListItemText, Button, Grid, CardMedia,Modal,Box,Input
 } from "@mui/material";
 import { Search, People, Inventory, HourglassEmpty, MoreVert, Edit, Delete, CheckCircle, Assignment } from "@mui/icons-material";
+import { API_CONFIG } from '../config/apiConfig';
 
 const AdminPage = () => {
     const [selectedSection, setSelectedSection] = useState("users");
@@ -36,7 +37,7 @@ const AdminPage = () => {
     const fetchUsers = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:8080/user/getall", {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/user/getall`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -51,7 +52,7 @@ const AdminPage = () => {
     const fetchItems = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:8080/items", {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/items`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -67,7 +68,7 @@ const AdminPage = () => {
     const confirmItem = async (itemId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8080/items/confirm/${itemId}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/items/confirm/${itemId}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -88,7 +89,7 @@ const AdminPage = () => {
     const fetchClaimRequests = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:8080/claims/getall", {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/claims/getall`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -103,7 +104,7 @@ const AdminPage = () => {
     const approveClaim = async (requestId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8080/claims/approve/${requestId}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/claims/approve/${requestId}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -125,7 +126,7 @@ const AdminPage = () => {
         try {
             console.log("Marking item as unclaimed:", itemId);
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8080/items/unclaim/${itemId}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/items/unclaim/${itemId}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -147,7 +148,7 @@ const AdminPage = () => {
     const deleteClaimRequest = async (requestId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8080/claims/delete/${requestId}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/claims/delete/${requestId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -166,7 +167,7 @@ const AdminPage = () => {
     const deleteItem = async (itemId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8080/items/delete/${itemId}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/items/delete/${itemId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -214,7 +215,7 @@ const AdminPage = () => {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8080/items/update/${selectedItem.itemID}`, {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/items/update/${selectedItem.itemID}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,

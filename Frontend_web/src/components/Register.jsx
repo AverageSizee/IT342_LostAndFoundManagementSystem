@@ -2,6 +2,7 @@ import { useState } from "react"
 import axios from "axios"
 import { Modal, Box, Typography, TextField, Button, IconButton, Grid } from "@mui/material"
 import { Close as CloseIcon } from "@mui/icons-material"
+import { API_CONFIG } from '../config/apiConfig'
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -46,7 +47,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
       
       // First check if user exists by schoolId
       try {
-        const checkUserResponse = await axios.get("http://localhost:8080/user/check-user", {
+        const checkUserResponse = await axios.get(`${API_CONFIG.BASE_URL}/user/check-user`, {
           params: { jobTitle: formData.schoolId },
         });
 
@@ -65,7 +66,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
 
       // Then check if email exists
       try {
-        const checkEmailResponse = await axios.get("http://localhost:8080/user/check-email", {
+        const checkEmailResponse = await axios.get(`${API_CONFIG.BASE_URL}/user/check-email`, {
           params: { email: formData.email },
         });
 
@@ -83,7 +84,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
       }
 
       // If email doesn't exist, proceed with registration
-      const response = await axios.post("http://localhost:8080/user/register", requestBody)
+      const response = await axios.post(`${API_CONFIG.BASE_URL}/user/register`, requestBody)
       setMessageModalContent("Registration successful!");
       setMessageModalOpen(true);
       setFormData({ schoolId: "", firstname: "", lastname: "", email: "", password: "", confirmPassword: "" }) // Reset form

@@ -8,7 +8,8 @@ import ReportLosTItems from "./ReportLosTItems.jsx"
 import { useAuth } from "./AuthProvider"
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:8080/user";
+import { API_CONFIG } from '../config/apiConfig';
+const API_URL = `${API_CONFIG.BASE_URL}/user`;
 
 
 const Header = () => {
