@@ -13,6 +13,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
     email: "",
     password: "",
     role: "student",
+    isMicrosoft: false,
     confirmPassword: "",
   })
   const [credentials, setCredentials] = useState({ schoolId: "", password: "" });
@@ -20,6 +21,8 @@ const Register = ({ open, onClose, onLoginClick }) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false)
+  const [messageModalOpen, setMessageModalOpen] = useState(false)
+  const [messageModalContent, setMessageModalContent] = useState("")
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -31,16 +34,58 @@ const Register = ({ open, onClose, onLoginClick }) => {
     e.preventDefault()
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!")
-      return
+      setMessageModalContent("Passwords do not match!");
+      setMessageModalOpen(true);
+      return;
     }
 
     const { confirmPassword, ...requestBody } = formData // Exclude confirmPassword
 
     try {
       setLoading(true)
+      
+      // First check if user exists by schoolId
+      try {
+        const checkUserResponse = await axios.get("http://localhost:8080/user/check-user", {
+          params: { jobTitle: formData.schoolId },
+        });
+
+        if (checkUserResponse.data.exists) {
+          setMessageModalContent("User with this ID already exists.");
+          setMessageModalOpen(true);
+          return;
+        }
+      } catch (error) {
+        if (error.response?.status !== 401) {
+          setMessageModalContent("Error checking ID availability");
+          setMessageModalOpen(true);
+          return;
+        }
+      }
+
+      // Then check if email exists
+      try {
+        const checkEmailResponse = await axios.get("http://localhost:8080/user/check-email", {
+          params: { email: formData.email },
+        });
+
+        if (checkEmailResponse.data.exists) {
+          setMessageModalContent("Email already exists. Please use a different email.");
+          setMessageModalOpen(true);
+          return;
+        }
+      } catch (error) {
+        if (error.response?.status !== 401) {
+          setMessageModalContent("Error checking email availability");
+          setMessageModalOpen(true);
+          return;
+        }
+      }
+
+      // If email doesn't exist, proceed with registration
       const response = await axios.post("http://localhost:8080/user/register", requestBody)
-      alert("Registration successful!")
+      setMessageModalContent("Registration successful!");
+      setMessageModalOpen(true);
       setFormData({ schoolId: "", firstname: "", lastname: "", email: "", password: "", confirmPassword: "" }) // Reset form
       credentials.password =  formData.password;
       credentials.schoolId = formData.schoolId;
@@ -54,13 +99,19 @@ const Register = ({ open, onClose, onLoginClick }) => {
         console.error("Login error:", err);
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Registration failed.")
+      if (error.response?.status === 409) {
+        setMessageModalContent("Email already exists. Please use a different email.");
+      } else {
+        setMessageModalContent(error.response?.data?.message || "Registration failed.");
+      }
+      setMessageModalOpen(true);
     } finally {
       setLoading(false)
     }
   }
 
   return (
+    <>
     <Modal
       open={open}
       onClose={onClose}
@@ -316,6 +367,40 @@ const Register = ({ open, onClose, onLoginClick }) => {
         </Box>
       </Box>
     </Modal>
+
+    {/* Message Modal */}
+    <Modal open={messageModalOpen} onClose={() => setMessageModalOpen(false)}>
+      <Box
+        sx={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: "#800000",
+          padding: "20px",
+          borderRadius: "10px",
+          textAlign: "center",
+          color: "white",
+          width: "300px"
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2 }}>{messageModalContent}</Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => setMessageModalOpen(false)}
+          sx={{ 
+            bgcolor: "#f0ad4e", 
+            color: "white",
+            "&:hover": { bgcolor: "#ec971f" },
+            textTransform: "none",
+            fontWeight: "bold"
+          }}
+        >
+          OK
+        </Button>
+      </Box>
+    </Modal>
+    </>
   )
 }
 

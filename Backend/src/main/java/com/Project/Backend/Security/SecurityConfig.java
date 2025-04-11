@@ -72,6 +72,8 @@ public class SecurityConfig {
                             .requestMatchers("/user/login").permitAll()
                             .requestMatchers("/user/register").permitAll()
                             .requestMatchers("/user/check-user").permitAll()
+                            .requestMatchers("/user/check-email").permitAll()
+                            .requestMatchers("/user/check-isMicrosoft").permitAll()
                             .anyRequest().authenticated()
                         )
                         .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

@@ -10,4 +10,5 @@ import com.Project.Backend.Entity.UserEntity;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Integer>{
     UserEntity findBySchoolId(String schoolId);
+    UserEntity findByEmail(String email);
 }

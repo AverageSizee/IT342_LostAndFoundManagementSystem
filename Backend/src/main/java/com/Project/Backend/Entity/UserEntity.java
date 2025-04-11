@@ -33,6 +33,8 @@ public class UserEntity {
 
     private String profilePicture;
 
+    private boolean isMicrosoft;
+
     @OneToMany(mappedBy = "reportedBy", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<ItemsEntity> itemsReported; // Items reported by this user
@@ -48,13 +50,14 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(String schoolId, String firstname, String lastname, String email, String password, String role) {
+    public UserEntity(String schoolId, String firstname, String lastname, String email, String password, String role, boolean isMicrosoft) {
         this.schoolId = schoolId;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.isMicrosoft = isMicrosoft;
     }
 
     public int getUserId() {
@@ -113,6 +116,7 @@ public class UserEntity {
     public void setRole(String role) {
         this.role = role;
     }
+    
 
     public List<ItemsEntity> getItemsReported() {
         return itemsReported;
@@ -144,6 +148,14 @@ public class UserEntity {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public boolean isMicrosoft() {
+        return isMicrosoft;
+    }
+
+    public void setMicrosoft(boolean isMicrosoft) {
+        this.isMicrosoft = isMicrosoft;
     }
 
     

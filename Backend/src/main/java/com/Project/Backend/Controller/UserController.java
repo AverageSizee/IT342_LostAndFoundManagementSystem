@@ -68,6 +68,22 @@ public class UserController {
         return response;
     }
 
+    @GetMapping("/check-email")
+    public Map<String, Boolean> checkEmail(@RequestParam String email) {
+        boolean exists = userService.userExistsByEmail(email);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return response;
+    }
+
+    @GetMapping("/check-isMicrosoft")
+    public Map<String, Boolean> checkIsMicrosoft(@RequestParam String schoolId) {
+        boolean isMicrosoft = userService.isMicrosoftUser(schoolId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isMicrosoft", isMicrosoft);
+        return response;
+    }
+
     @PostMapping("/upload/user/{userId}")
     public ResponseEntity<?> updateUserProfile(
         @PathVariable String userId,
@@ -85,7 +101,7 @@ public class UserController {
     }
 
     @GetMapping("/getcurrentuser")
-     public ResponseEntity<Map<String, String>> getSchoolId(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Map<String, String>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Collections.singletonMap("error", "Invalid token"));
@@ -93,8 +109,20 @@ public class UserController {
 
         String token = authHeader.substring(7);
         String schoolId = tokenService.extractSchoolId(token);
+        UserEntity user = userService.getUserBySchoolId(schoolId);
 
-        return ResponseEntity.ok(Collections.singletonMap("schoolId", schoolId));
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User not found"));
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("schoolId", user.getSchoolId());
+        response.put("firstname", user.getFirstname());
+        response.put("lastname", user.getLastname());
+        response.put("email", user.getEmail());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/profile/image")
