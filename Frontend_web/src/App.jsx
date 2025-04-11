@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage'
 import LostItemsPage from './pages/Lost&FoundItems'
 import ProfilePage from './pages/ProfilePage'
 import AdminPage from './pages/AdminPage'
+import Footer from './components/Footer'
 import './App.css'
 import { AuthProvider } from './components/AuthProvider'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -18,7 +19,7 @@ function App() {
           <Route path="/" element={<LandingPage />}/>
           
 
-          <Route path="/LostandFoundItems" element={<ProtectedRoute> <LostItemsPage/> </ProtectedRoute>}/>
+          <Route path="/LostandFoundItems" element={<ProtectedRoute> <LostItemsPage/>         <Footer /></ProtectedRoute>}/>
           <Route path="/Admin" element={<AdminProtectedRoute> <AdminPage/> </AdminProtectedRoute>}/>
           <Route path="/Profile" element={<ProtectedRoute> <ProfilePage/> </ProtectedRoute>}/>
           

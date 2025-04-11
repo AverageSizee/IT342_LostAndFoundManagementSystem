@@ -39,6 +39,10 @@ public class UserService {
         return userRepository.findBySchoolId(jobTitle) != null;
     }
 
+    public boolean userExistsByEmail(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
     public List<UserEntity> getAllUsers() { 
         return userRepository.findAll();
     }
@@ -116,5 +120,13 @@ public class UserService {
         }
 
         return true;
+    }
+
+    public boolean isMicrosoftUser(String schoolId) {
+        UserEntity user = userRepository.findBySchoolId(schoolId);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user.isMicrosoft();
     }
 }

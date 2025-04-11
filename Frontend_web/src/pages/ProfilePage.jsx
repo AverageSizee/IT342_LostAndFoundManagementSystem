@@ -28,7 +28,7 @@ const UpdateProfilePage = () => {
         const response = await axios.get("http://localhost:8080/user/getcurrentuser", {
           headers: { Authorization: `Bearer ${token}` }
         });
-
+        console.log(response.data);
         setUser(response.data);
         setFirstname(response.data.firstname);
         setLastname(response.data.lastname);
