@@ -9,6 +9,9 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
+# Make mvnw executable
+RUN chmod +x mvnw
+
 # Copy source code
 COPY src src
 
