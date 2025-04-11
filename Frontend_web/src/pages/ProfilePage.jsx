@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_CONFIG } from '../config/apiConfig';
 
 const UpdateProfilePage = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const UpdateProfilePage = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:8080/user/getcurrentuser", {
+        const response = await axios.get(`${API_CONFIG.BASE_URL}/user/getcurrentuser`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log(response.data);
@@ -62,7 +63,7 @@ const UpdateProfilePage = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:8080/user/upload/user/${user?.schoolId}`, // Using user.schoolId from the fetched user data
+        `${API_CONFIG.BASE_URL}/user/upload/user/${user?.schoolId}`, // Using user.schoolId from the fetched user data
         formData,
         { 
           headers: { 

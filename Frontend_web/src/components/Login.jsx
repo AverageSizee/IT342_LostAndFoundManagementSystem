@@ -5,6 +5,7 @@ import { Close as CloseIcon, Microsoft as MicrosoftIcon } from "@mui/icons-mater
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { PublicClientApplication } from "@azure/msal-browser";
+import { API_CONFIG } from '../config/apiConfig';
 
 const msalConfig = {
   auth: {
@@ -70,7 +71,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
       // Extract jobTitle from userData
       const jobTitle = userData.jobTitle || "Unknown"; 
       // Check if user exists in the database
-      const checkUserResponse = await axios.get("http://localhost:8080/user/check-user", {
+      const checkUserResponse = await axios.get(`${API_CONFIG.BASE_URL}/user/check-user`, {
         params: { jobTitle },
       });
   
@@ -104,7 +105,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
           };
       
           // Send registration request
-          const response = await axios.post("http://localhost:8080/user/register", requestBody);
+          const response = await axios.post(`${API_CONFIG.BASE_URL}/user/register`, requestBody);
       
           // Notify user of successful registration
           alert("Registration successful!");

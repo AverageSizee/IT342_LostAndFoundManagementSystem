@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_CONFIG } from '../config/apiConfig';
 import {
   Box,
   Typography,
@@ -36,7 +37,7 @@ const LostItemsPage = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:8080/items", {
+        const response = await axios.get(`${API_CONFIG.BASE_URL}/items`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setLostItems(response.data);
@@ -87,7 +88,7 @@ const LostItemsPage = () => {
   
     try {
       // Fetch the userId first
-      const userResponse = await axios.get("http://localhost:8080/user/getcurrentuser", {
+      const userResponse = await axios.get(`${API_CONFIG.BASE_URL}/user/getcurrentuser`, {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -104,7 +105,7 @@ const LostItemsPage = () => {
       // console.log("Reason:", reason);
       // Proceed with claim submission
       await axios.post(
-        `http://localhost:8080/claims/request?userId=${userId}&itemId=${selectedItem.itemID}&claimDate=${new Date().toISOString().split("T")[0]}&reason=${encodeURIComponent(reason)}`,
+        `${API_CONFIG.BASE_URL}/claims/request?userId=${userId}&itemId=${selectedItem.itemID}&claimDate=${new Date().toISOString().split("T")[0]}&reason=${encodeURIComponent(reason)}`,
         {}, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
