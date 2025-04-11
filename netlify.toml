@@ -1,8 +1,8 @@
 [build]
   base = "Frontend_web"
-  command = "cd Frontend_web && npm run build"
-  publish = "Frontend_web/dist"
-  functions = "Frontend_web/netlify/functions"
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/*"
