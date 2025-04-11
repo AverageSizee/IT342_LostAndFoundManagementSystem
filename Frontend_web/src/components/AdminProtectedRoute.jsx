@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 import { API_CONFIG } from '../config/apiConfig';
-const API_URL = `${API_CONFIG.BASE_URL}${API_CONFIG.USER_ENDPOINT}`;
+const API_URL = `${API_CONFIG.BASE_URL}/user`;
 
 const AdminProtectedRoute = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(null);
