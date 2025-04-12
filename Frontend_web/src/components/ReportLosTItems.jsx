@@ -4,6 +4,7 @@ import { Modal, Box, Typography, TextField, Button, IconButton, MenuItem } from 
 import { Close as CloseIcon, UploadFile as UploadFileIcon } from "@mui/icons-material"
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
 import InputAdornment from "@mui/material/InputAdornment";
+import { API_CONFIG } from '../config/apiConfig';
 
 const ReportLostItem = ({ open, onClose, userID }) => {
   const [formData, setFormData] = useState({
@@ -73,7 +74,7 @@ const ReportLostItem = ({ open, onClose, userID }) => {
       );
   
       const response = await axios.post(
-        `http://localhost:8080/items/report/${userID}`,
+        `${API_CONFIG.BASE_URL}/items/report/${userID}`,
         formDataToSend,
         {
           headers: {
