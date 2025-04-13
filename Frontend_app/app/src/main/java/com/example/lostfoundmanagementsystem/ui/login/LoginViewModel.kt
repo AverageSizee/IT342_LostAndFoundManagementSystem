@@ -18,18 +18,16 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.instance.login(loginRequest)
-
                 if (response.isSuccessful && response.body() != null) {
                     val responseBody = response.body()!!
-
-                    // Log the entire response for debugging
                     println("API Response: $responseBody")
 
                     val token = responseBody["token"] as? String ?: ""
                     val user = responseBody["user"] as? String ?: ""
+                    val role = responseBody["role"] as? String ?: ""
 
                     if (token.isNotEmpty()) {
-                        _loginResponse.postValue(LoginResponse(token, user))
+                        _loginResponse.postValue(LoginResponse(token, user, role))
                     } else {
                         println("Login failed: Token is empty")
                         _loginResponse.postValue(null)

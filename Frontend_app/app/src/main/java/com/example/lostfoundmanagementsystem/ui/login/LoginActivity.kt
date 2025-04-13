@@ -11,6 +11,7 @@ import com.example.lostfoundmanagementsystem.LandingActivity
 import com.example.lostfoundmanagementsystem.R
 import com.example.lostfoundmanagementsystem.data.SharedPrefManager
 import com.example.lostfoundmanagementsystem.data.model.LoginRequest
+import com.example.lostfoundmanagementsystem.ui.lostitems.LostItemsActivity
 
 class LoginActivity : AppCompatActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
@@ -40,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
                 SharedPrefManager.saveUser(this, response.user, response.token)
 
-                val intent = Intent(this, LandingActivity::class.java)
+                val intent = Intent(this, LostItemsActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             } else {
