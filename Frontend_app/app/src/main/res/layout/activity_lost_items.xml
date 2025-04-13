@@ -59,15 +59,20 @@
             android:tint="#000" />
     </LinearLayout>
 
-    <!-- Lost Items Grid (RecyclerView) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lostItemsRecyclerView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false"
-        tools:listitem="@layout/item_lost" />
+        android:layout_weight="1">
+        <!-- Lost Items Grid (RecyclerView) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lostItemsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp"
+            tools:listitem="@layout/item_lost" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Bottom Navigation -->
     <LinearLayout

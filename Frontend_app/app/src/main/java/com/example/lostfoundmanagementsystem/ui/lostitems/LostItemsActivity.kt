@@ -22,10 +22,23 @@ class LostItemsActivity : AppCompatActivity() {
 
         binding.lostItemsRecyclerView.layoutManager = GridLayoutManager(this, 2)
 
-        viewModel.fetchLostItems(token.toString())
+        // Load items
+        fetchItems(token.toString())
 
-        viewModel.lostItems.observe(this) { items ->
-            binding.lostItemsRecyclerView.adapter = LostItemAdapter(items)
+        // Swipe to refresh listener
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            fetchItems(token.toString()) // Re-fetch on pull down
         }
+
+        // Observe items
+        viewModel.lostItems.observe(this) { items ->
+            val confirmedItems = items.filter { it.status == "Confirmed" }
+            binding.lostItemsRecyclerView.adapter = LostItemAdapter(confirmedItems)
+            binding.swipeRefreshLayout.isRefreshing = false // Hide the refresh icon
+        }
+    }
+    private fun fetchItems(token: String) {
+        binding.swipeRefreshLayout.isRefreshing = true
+        viewModel.fetchLostItems(token)
     }
 }
