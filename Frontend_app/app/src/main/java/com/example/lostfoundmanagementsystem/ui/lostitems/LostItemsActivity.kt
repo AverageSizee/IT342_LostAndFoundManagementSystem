@@ -15,8 +15,6 @@ class LostItemsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLostItemsBinding
     private val viewModel: LostItemsViewModel by viewModels()
 
-    private var isInFragment = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLostItemsBinding.inflate(layoutInflater)
@@ -24,6 +22,7 @@ class LostItemsActivity : AppCompatActivity() {
 
         val token = SharedPrefManager.getUserToken(this)
 
+        // Setup RecyclerView
         binding.lostItemsRecyclerView.layoutManager = GridLayoutManager(this, 2)
         fetchItems(token.toString())
 
@@ -31,26 +30,23 @@ class LostItemsActivity : AppCompatActivity() {
             fetchItems(token.toString())
         }
 
+        // Observe LiveData from ViewModel
         viewModel.lostItems.observe(this) { items ->
             val confirmedItems = items.filter { it.status == "Confirmed" }
             binding.lostItemsRecyclerView.adapter = LostItemAdapter(confirmedItems)
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        // Bottom navigation buttons
         val homeButton = findViewById<ImageButton>(R.id.homeButton)
         val cameraButton = findViewById<ImageButton>(R.id.cameraButton)
         val notificationButton = findViewById<ImageButton>(R.id.notificationButton)
 
         homeButton.setOnClickListener {
-            exitFragmentView() // Just show main view
+            supportFragmentManager.popBackStack() // Return to main screen
         }
 
         cameraButton.setOnClickListener {
-            binding.fragmentContainer.visibility = View.VISIBLE
-
-            // Hide the recycler and UI overlays
-            findViewById<View>(R.id.bottomNavBar).visibility = View.INVISIBLE
-
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, CameraFragment())
                 .addToBackStack(null)
@@ -58,8 +54,25 @@ class LostItemsActivity : AppCompatActivity() {
         }
 
         notificationButton.setOnClickListener {
-            // TODO: Replace with NotificationFragment() if you have one
-            // enterFragmentView(NotificationFragment())
+            // TODO: Implement NotificationFragment if needed
+        }
+
+        // 👇 BackStack Listener to toggle visibility automatically
+        supportFragmentManager.addOnBackStackChangedListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            val isCameraFragment = currentFragment is CameraFragment
+
+            if (isCameraFragment) {
+                binding.fragmentContainer.visibility = View.VISIBLE
+                binding.lostItemsRecyclerView.visibility = View.GONE
+                binding.swipeRefreshLayout.visibility = View.GONE
+                findViewById<View>(R.id.bottomNavBar).visibility = View.INVISIBLE
+            } else {
+                binding.fragmentContainer.visibility = View.GONE
+                binding.lostItemsRecyclerView.visibility = View.VISIBLE
+                binding.swipeRefreshLayout.visibility = View.VISIBLE
+                findViewById<View>(R.id.bottomNavBar).visibility = View.VISIBLE
+            }
         }
     }
 
@@ -68,29 +81,9 @@ class LostItemsActivity : AppCompatActivity() {
         viewModel.fetchLostItems(token)
     }
 
-    private fun enterFragmentView(fragment: androidx.fragment.app.Fragment) {
-        isInFragment = true
-        binding.swipeRefreshLayout.visibility = View.GONE
-        binding.lostItemsRecyclerView.visibility = View.GONE
-        binding.fragmentContainer.visibility = View.VISIBLE
-
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    private fun exitFragmentView() {
-        isInFragment = false
-        findViewById<View>(R.id.bottomNavBar).visibility = View.VISIBLE
-
-        supportFragmentManager.popBackStack()
-    }
-
-
     override fun onBackPressed() {
-        if (isInFragment) {
-            exitFragmentView()
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
         } else {
             super.onBackPressed()
         }

@@ -34,11 +34,12 @@
     <!-- Placeholder shutter button -->
     <ImageButton
         android:id="@+id/shutterButton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/bg_circle_white"
+        android:contentDescription="Capture"
+        android:scaleType="centerInside"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="32dp"
-        android:src="@android:drawable/ic_menu_camera"
-        android:background="@android:color/transparent"
-        android:contentDescription="Capture" />
+        android:layout_marginBottom="40dp"
+        />
 </FrameLayout>
