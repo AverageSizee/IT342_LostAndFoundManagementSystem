@@ -52,7 +52,7 @@
             android:textColorHint="@color/maroon"
             android:inputType="none"
             android:paddingStart="48dp"
-            android:focusable="false" />
+            android:focusable="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Item Name -->

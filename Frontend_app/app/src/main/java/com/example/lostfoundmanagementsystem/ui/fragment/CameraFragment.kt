@@ -6,6 +6,8 @@ import android.animation.ObjectAnimator
 import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -26,9 +28,14 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.example.lostfoundmanagementsystem.data.SharedPrefManager
 import com.example.lostfoundmanagementsystem.databinding.FragmentCameraBinding
 import com.example.lostfoundmanagementsystem.databinding.LayoutPhotoModalBinding
+import com.example.lostfoundmanagementsystem.ui.report.ReportItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -221,15 +228,48 @@ class CameraFragment : Fragment() {
         val locations = arrayOf("RTl", "NGE", "GLE", "ALLIED", "ESPACIO", "STUDYAREA", "GMART", "GLINK")
         val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, locations)
         (modalBinding.locationDropdown as? AutoCompleteTextView)?.setAdapter(adapter)
+        modalBinding.locationDropdown.inputType = 0
+        modalBinding.locationDropdown.keyListener = null
+        modalBinding.locationDropdown.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                (view as AutoCompleteTextView).showDropDown()
+            }
+        }
+
+        modalBinding.locationDropdown.setOnClickListener {
+            (it as AutoCompleteTextView).showDropDown()
+        }
 
         modalBinding.reportButton.setOnClickListener {
-            // Get the selected location and found date
             val selectedLocation = modalBinding.locationDropdown.text.toString()
             val foundDate = modalBinding.foundDateInput.text.toString()
+            val itemName = modalBinding.itemNameInput.text.toString()
+            val itemDescription = modalBinding.descriptionInput.text.toString()
 
-            // Navigate to report form with the image, location, and found date
-            navigateToReportForm(imageUri, selectedLocation, foundDate)
-            bottomSheetDialog.dismiss()
+            val imageFile = uriToCompressedFile(imageUri)
+
+            val userId = SharedPrefManager.getUser(requireContext()) // Or however you're storing user ID
+            val token = SharedPrefManager.getUserToken(requireContext())
+
+            val viewModel = ViewModelProvider(this@CameraFragment)[ReportItemViewModel::class.java]
+            viewModel.reportLostItem(
+                token = token.toString(),
+                userId = userId.toString(),
+                itemName = itemName,
+                itemDescription = itemDescription,
+                location = selectedLocation,
+                foundDate = foundDate,
+                imageFile = imageFile
+            )
+
+            viewModel.reportResult.observe(viewLifecycleOwner) { result ->
+                result.onSuccess {
+                    Toast.makeText(requireContext(), "Item reported successfully!", Toast.LENGTH_SHORT).show()
+                    bottomSheetDialog.dismiss()
+                }.onFailure {
+                    Toast.makeText(requireContext(), "Failed to report item: ${it.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         // Setup cancel button
@@ -249,13 +289,24 @@ class CameraFragment : Fragment() {
         bottomSheetDialog.show()
     }
 
-    private fun navigateToReportForm(imageUri: Uri, location: String = "", foundDate: String) {
-        // Navigate to the report form with the image URI, location, and found date
-        Toast.makeText(
-            requireContext(),
-            "Navigating to report form with image, location: $location, found date: $foundDate",
-            Toast.LENGTH_SHORT
-        ).show()
+    private fun uriToCompressedFile(uri: Uri): File? {
+        val context = requireContext()
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+
+        // Decode input stream to bitmap
+        val bitmap = BitmapFactory.decodeStream(inputStream) ?: return null
+        inputStream.close()
+
+        // Create a temp file to write compressed bitmap
+        val compressedFile = File.createTempFile("lost_found_compressed_", ".jpg", context.cacheDir)
+        val outputStream = FileOutputStream(compressedFile)
+
+        // Compress bitmap (adjust quality as needed)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream) // 60% quality
+        outputStream.flush()
+        outputStream.close()
+
+        return compressedFile
     }
 
     private fun requestCameraPermission() {
@@ -277,26 +328,19 @@ class CameraFragment : Fragment() {
 
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
             }
 
-            // Initialize image capture use case
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
+            imageCapture = ImageCapture.Builder().build()
 
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
-                    viewLifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    imageCapture
+                    viewLifecycleOwner, cameraSelector, preview, imageCapture
                 )
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Failed to start camera: ${e.message}", Toast.LENGTH_LONG).show()
+                e.printStackTrace()
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
