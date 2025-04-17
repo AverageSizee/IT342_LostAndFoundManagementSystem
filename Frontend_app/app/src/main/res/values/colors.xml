@@ -6,4 +6,5 @@
     <color name="yellow">#FFC107</color>
     <color name="black">#000000</color>
     <color name="dark_gray">#666666</color>
+    <color name="light_gray">#F5F5F5</color>
 </resources>

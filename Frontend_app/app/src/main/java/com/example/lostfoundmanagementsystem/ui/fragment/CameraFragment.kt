@@ -1,20 +1,37 @@
 package com.example.lostfoundmanagementsystem
 
 import android.Manifest
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.app.DatePickerDialog
+import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.lostfoundmanagementsystem.databinding.FragmentCameraBinding
+import com.example.lostfoundmanagementsystem.databinding.LayoutPhotoModalBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -23,11 +40,17 @@ class CameraFragment : Fragment() {
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
 
+    private var _modalBinding: LayoutPhotoModalBinding? = null
+    private val modalBinding get() = _modalBinding!!
+
     private lateinit var cameraExecutor: ExecutorService
     private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private var imageCapture: ImageCapture? = null
+    private var lastCapturedImageUri: Uri? = null
 
     companion object {
         private const val CAMERA_PERMISSION_REQUEST = 1001
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
     }
 
     override fun onCreateView(
@@ -41,6 +64,18 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Add flash overlay for animation
+        val flashOverlay = View(requireContext())
+        flashOverlay.id = View.generateViewId()
+        flashOverlay.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        flashOverlay.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+        flashOverlay.alpha = 0f
+        flashOverlay.visibility = View.GONE
+        (binding.root as ViewGroup).addView(flashOverlay)
+
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         // Check and request camera permission if not granted
@@ -53,7 +88,10 @@ class CameraFragment : Fragment() {
         }
 
         binding.shutterButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Capture clicked (not implemented)", Toast.LENGTH_SHORT).show()
+            // Play shutter animation
+            playShutterAnimation(flashOverlay)
+            // Take photo
+            takePhoto()
         }
 
         // Flip camera
@@ -69,6 +107,155 @@ class CameraFragment : Fragment() {
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+    }
+
+    private fun playShutterAnimation(flashOverlay: View) {
+        // Flash animation
+        flashOverlay.visibility = View.VISIBLE
+
+        // Flash animation
+        val flashIn = ObjectAnimator.ofFloat(flashOverlay, "alpha", 0f, 0.7f)
+        flashIn.duration = 100
+
+        val flashOut = ObjectAnimator.ofFloat(flashOverlay, "alpha", 0.7f, 0f)
+        flashOut.duration = 200
+        flashOut.startDelay = 100
+
+        // Shutter button animation
+        val scaleDownX = ObjectAnimator.ofFloat(binding.shutterButton, "scaleX", 1f, 0.85f)
+        val scaleDownY = ObjectAnimator.ofFloat(binding.shutterButton, "scaleY", 1f, 0.85f)
+        scaleDownX.duration = 100
+        scaleDownY.duration = 100
+
+        val scaleUpX = ObjectAnimator.ofFloat(binding.shutterButton, "scaleX", 0.85f, 1f)
+        val scaleUpY = ObjectAnimator.ofFloat(binding.shutterButton, "scaleY", 0.85f, 1f)
+        scaleUpX.duration = 200
+        scaleUpY.duration = 200
+        scaleUpX.interpolator = OvershootInterpolator()
+        scaleUpY.interpolator = OvershootInterpolator()
+
+        // Play all animations together
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(flashIn, flashOut, scaleDownX, scaleDownY, scaleUpX, scaleUpY)
+        animatorSet.start()
+    }
+
+    private fun takePhoto() {
+        val imageCapture = imageCapture ?: return
+
+        // Create time stamped name and MediaStore entry
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/LostFound")
+            }
+        }
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions
+            .Builder(requireContext().contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues)
+            .build()
+
+        // Set up image capture listener, which is triggered after photo has been taken
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(requireContext()),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Toast.makeText(requireContext(),
+                        "Photo capture failed: ${exc.message}",
+                        Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val savedUri = output.savedUri
+                    lastCapturedImageUri = savedUri
+
+                    // Show modal with the captured image
+                    showPhotoModal(savedUri)
+                }
+            }
+        )
+    }
+
+    private fun showPhotoModal(imageUri: Uri?) {
+        if (imageUri == null) return
+
+        val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
+        _modalBinding = LayoutPhotoModalBinding.inflate(layoutInflater)
+
+        // Set the captured image
+        modalBinding.capturedImage.setImageURI(imageUri)
+
+        // Set current date as default in Found Date field
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(System.currentTimeMillis())
+        modalBinding.foundDateInput.setText(currentDate)
+
+        // Allow user to change the date by clicking on the field
+        modalBinding.foundDateInput.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            // Show DatePickerDialog
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    // Update the found date field with the selected date
+                    val selectedDate = "$selectedYear-${selectedMonth + 1}-${selectedDay}"
+                    modalBinding.foundDateInput.setText(selectedDate)
+                },
+                year, month, day
+            )
+            datePicker.show()
+        }
+
+        // Setup location dropdown and other modal elements...
+        val locations = arrayOf("RTl", "NGE", "GLE", "ALLIED", "ESPACIO", "STUDYAREA", "GMART", "GLINK")
+        val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, locations)
+        (modalBinding.locationDropdown as? AutoCompleteTextView)?.setAdapter(adapter)
+
+        modalBinding.reportButton.setOnClickListener {
+            // Get the selected location and found date
+            val selectedLocation = modalBinding.locationDropdown.text.toString()
+            val foundDate = modalBinding.foundDateInput.text.toString()
+
+            // Navigate to report form with the image, location, and found date
+            navigateToReportForm(imageUri, selectedLocation, foundDate)
+            bottomSheetDialog.dismiss()
+        }
+
+        // Setup cancel button
+        modalBinding.cancelButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+
+        // Show the modal with animation
+        bottomSheetDialog.setContentView(modalBinding.root)
+
+        // Animate the modal appearance
+        val slideUp = ObjectAnimator.ofFloat(modalBinding.root, "translationY", 300f, 0f)
+        slideUp.duration = 300
+        slideUp.interpolator = AccelerateDecelerateInterpolator()
+        slideUp.start()
+
+        bottomSheetDialog.show()
+    }
+
+    private fun navigateToReportForm(imageUri: Uri, location: String = "", foundDate: String) {
+        // Navigate to the report form with the image URI, location, and found date
+        Toast.makeText(
+            requireContext(),
+            "Navigating to report form with image, location: $location, found date: $foundDate",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun requestCameraPermission() {
@@ -95,12 +282,18 @@ class CameraFragment : Fragment() {
                 it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
             }
 
+            // Initialize image capture use case
+            imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
+
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                     viewLifecycleOwner,
                     cameraSelector,
-                    preview
+                    preview,
+                    imageCapture
                 )
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Failed to start camera: ${e.message}", Toast.LENGTH_LONG).show()
@@ -112,6 +305,7 @@ class CameraFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         cameraExecutor.shutdown()
+        _modalBinding = null
         _binding = null
     }
 
