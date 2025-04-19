@@ -27,6 +27,7 @@ import com.Project.Backend.DTO.LoginRequest;
 import com.Project.Backend.Entity.UserEntity;
 import com.Project.Backend.Service.TokenService;
 import com.Project.Backend.Service.UserService;
+import com.Project.Backend.Service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -38,10 +39,12 @@ public class UserController {
     private UserService userService;
 
     private final TokenService tokenService;
-    
 
-    public UserController(TokenService tokenService) {
+    private final NotificationService notificationService;
+
+    public UserController(TokenService tokenService, NotificationService notificationService) {
         this.tokenService = tokenService;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/create")
@@ -140,8 +143,6 @@ public class UserController {
                 return ResponseEntity.status(401).body("Invalid token: schoolId missing");
             }
     
-            // System.out.println("Fetching profile image for schoolId: " + schoolId); // Debugging log
-    
             String profileImage = userService.getUserProfileImage(schoolId);
     
             if (profileImage == null || profileImage.isEmpty()) {
@@ -150,10 +151,11 @@ public class UserController {
     
             return ResponseEntity.ok(profileImage);
         } catch (Exception e) {
-            e.printStackTrace(); // Debugging
+            e.printStackTrace();
             return ResponseEntity.status(500).body("Error fetching profile image: " + e.getMessage());
         }
     }
+
     @GetMapping("/getcurrentrole")
     public ResponseEntity<Map<String, String>> getUserRole(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -187,9 +189,6 @@ public class UserController {
                 String token = tokenService.generateToken(authentication,user.getSchoolId(),user.getRole());
 
                 session.setAttribute("user", loginRequest.getSchoolId());
-                //System.out.println(session.getAttribute("user"));
-                //System.out.println("Session ID: " + session.getId()); 
-
 
                 Map<String, Object> responseBody = new HashMap<>();
                 responseBody.put("token", token);
@@ -203,7 +202,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
         }
     }
-    
 
     @GetMapping("/{id}")
     public ResponseEntity<UserEntity> getUserById(@PathVariable int id) {
@@ -215,5 +213,22 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @PostMapping("/send-notification")
+    public ResponseEntity<String> sendNotification(@RequestParam String targetToken,
+                                                   @RequestParam String title,
+                                                   @RequestParam String body) {
+        try {
+            notificationService.sendNotification(targetToken, title, body);
+            return ResponseEntity.ok("Notification sent successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to send notification: " + e.getMessage());
+        }
+       
+    }
+    @PostMapping("/update-fcm-token")
+    public ResponseEntity<Map<String, String>> updateFcmToken(@RequestParam String schoolId, @RequestParam String fcmToken) {
+        return userService.updateFcmToken(schoolId, fcmToken);
+    }
 }

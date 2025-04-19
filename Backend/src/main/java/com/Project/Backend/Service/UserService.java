@@ -1,9 +1,12 @@
 package com.Project.Backend.Service;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -128,5 +131,15 @@ public class UserService {
             throw new UsernameNotFoundException("User not found");
         }
         return user.isMicrosoft();
+    }
+
+        public ResponseEntity<Map<String, String>> updateFcmToken(String schoolId, String fcmToken) {
+        UserEntity user = userRepository.findBySchoolId(schoolId);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "User not found"));
+        }
+        user.setFcmToken(fcmToken);
+        userRepository.save(user);
+        return ResponseEntity.ok(Collections.singletonMap("message", "FCM token updated successfully"));
     }
 }
