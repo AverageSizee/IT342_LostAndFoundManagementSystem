@@ -5,6 +5,7 @@ import com.example.lostfoundmanagementsystem.data.model.LoginResponse
 import com.example.lostfoundmanagementsystem.data.model.LostItem
 import com.example.lostfoundmanagementsystem.data.model.RegisterResponse
 import com.example.lostfoundmanagementsystem.data.model.User
+import com.example.lostfoundmanagementsystem.data.model.UsersLostItemRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -40,6 +41,12 @@ interface AuthApi {
         @Header("Authorization") token: String,
         @Query("schoolId") schoolId: String,
         @Query("fcmToken") fcmToken: String
+    ): Response<Void>
+    @POST("users-lost-items/add/{userId}")
+    suspend fun addUsersLostItem(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: String,
+        @Body lostItemRequest: UsersLostItemRequest
     ): Response<Void>
 }
 

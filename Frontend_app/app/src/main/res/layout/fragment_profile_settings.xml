@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/editTextItemName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Item Name"
+            android:textColor="#7B0000"
+            android:textColorHint="#7B0000"
+            android:backgroundTint="#7B0000"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/editTextDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description"
+            android:textColor="#7B0000"
+            android:textColorHint="#7B0000"
+            android:backgroundTint="#7B0000"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxStrokeColor="#7B0000"
+            app:hintTextColor="#7B0000"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:id="@+id/locationDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Location"
+                android:textColor="#7B0000"
+                android:textColorHint="#7B0000" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/buttonSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add Lost Item"
+                android:backgroundTint="#7B0000"
+                android:textColor="#FFFFFF" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="#7B0000" />
+        </FrameLayout>
+    </LinearLayout>
+</ScrollView>

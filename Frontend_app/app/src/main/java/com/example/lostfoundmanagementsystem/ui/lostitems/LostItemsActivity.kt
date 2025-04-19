@@ -3,6 +3,8 @@ package com.example.lostfoundmanagementsystem.ui.lostitems
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -10,6 +12,7 @@ import com.example.lostfoundmanagementsystem.CameraFragment
 import com.example.lostfoundmanagementsystem.R
 import com.example.lostfoundmanagementsystem.data.SharedPrefManager
 import com.example.lostfoundmanagementsystem.databinding.ActivityLostItemsBinding
+import com.example.lostfoundmanagementsystem.ui.fragment.ProfileSettingsFragment
 
 class LostItemsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLostItemsBinding
@@ -41,12 +44,27 @@ class LostItemsActivity : AppCompatActivity() {
         val homeButton = findViewById<ImageButton>(R.id.homeButton)
         val cameraButton = findViewById<ImageButton>(R.id.cameraButton)
         val notificationButton = findViewById<ImageButton>(R.id.notificationButton)
+        val profileIcon = findViewById<ImageView>(R.id.profileIcon)
+
+        profileIcon.setOnClickListener {
+            binding.fragmentContainer.visibility = View.VISIBLE
+            binding.lostItemsRecyclerView.visibility = View.GONE
+            binding.swipeRefreshLayout.visibility = View.GONE
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, ProfileSettingsFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
         homeButton.setOnClickListener {
             supportFragmentManager.popBackStack() // Return to main screen
         }
 
         cameraButton.setOnClickListener {
+            binding.fragmentContainer.visibility = View.VISIBLE
+            binding.lostItemsRecyclerView.visibility = View.GONE
+            binding.swipeRefreshLayout.visibility = View.GONE
+            findViewById<View>(R.id.bottomNavBar).visibility = View.INVISIBLE
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, CameraFragment())
                 .addToBackStack(null)
@@ -54,24 +72,39 @@ class LostItemsActivity : AppCompatActivity() {
         }
 
         notificationButton.setOnClickListener {
-            // TODO: Implement NotificationFragment if needed
+            binding.fragmentContainer.visibility = View.VISIBLE
+            binding.lostItemsRecyclerView.visibility = View.GONE
+            binding.swipeRefreshLayout.visibility = View.GONE
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, ProfileSettingsFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         // 👇 BackStack Listener to toggle visibility automatically
         supportFragmentManager.addOnBackStackChangedListener {
             val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-            val isCameraFragment = currentFragment is CameraFragment
 
-            if (isCameraFragment) {
-                binding.fragmentContainer.visibility = View.VISIBLE
-                binding.lostItemsRecyclerView.visibility = View.GONE
-                binding.swipeRefreshLayout.visibility = View.GONE
-                findViewById<View>(R.id.bottomNavBar).visibility = View.INVISIBLE
-            } else {
-                binding.fragmentContainer.visibility = View.GONE
-                binding.lostItemsRecyclerView.visibility = View.VISIBLE
-                binding.swipeRefreshLayout.visibility = View.VISIBLE
-                findViewById<View>(R.id.bottomNavBar).visibility = View.VISIBLE
+            when (currentFragment) {
+                is CameraFragment -> {
+                    binding.fragmentContainer.visibility = View.VISIBLE
+                    binding.lostItemsRecyclerView.visibility = View.GONE
+                    binding.swipeRefreshLayout.visibility = View.GONE
+                    findViewById<View>(R.id.bottomNavBar).visibility = View.INVISIBLE
+                }
+                is ProfileSettingsFragment -> {
+                    binding.fragmentContainer.visibility = View.VISIBLE
+                    binding.lostItemsRecyclerView.visibility = View.GONE
+                    binding.swipeRefreshLayout.visibility = View.GONE
+                    findViewById<View>(R.id.bottomNavBar).visibility = View.VISIBLE
+                }
+                null -> {
+                    // No fragment in container, show main content
+                    binding.fragmentContainer.visibility = View.GONE
+                    binding.lostItemsRecyclerView.visibility = View.VISIBLE
+                    binding.swipeRefreshLayout.visibility = View.VISIBLE
+                    findViewById<View>(R.id.bottomNavBar).visibility = View.VISIBLE
+                }
             }
         }
     }
