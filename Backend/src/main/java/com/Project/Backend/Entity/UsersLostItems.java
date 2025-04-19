@@ -22,11 +22,10 @@ public class UsersLostItems {
 
     public UsersLostItems() {}
 
-    public UsersLostItems(String itemName, String description, String location, UserEntity user) {
+    public UsersLostItems(String itemName, String description, String location) {
         this.itemName = itemName;
         this.description = description;
         this.location = location;
-        this.user = user;
     }
 
     public Long getId() {
