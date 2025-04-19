@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 
 import com.Project.Backend.Entity.ItemsEntity;
 import com.Project.Backend.Entity.UserEntity;
+import com.Project.Backend.Entity.UsersLostItems;
 import com.Project.Backend.Repository.ItemsRepository;
 import com.Project.Backend.Repository.UserRepository;
+import com.Project.Backend.Repository.UsersLostItemsRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -24,6 +26,13 @@ public class ItemsService {
     @Autowired
     private UserRepository usersRepository;
 
+    @Autowired
+    private UsersLostItemsRepository usersLostItemsRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+    
+
     public ItemsEntity reportItem(String userID, ItemsEntity item, MultipartFile file) {
         UserEntity user = usersRepository.findBySchoolId(userID);
         if (user == null) {
@@ -35,7 +44,6 @@ public class ItemsService {
         try {
             imageUrl = cloudinaryService.uploadImage(file, "item_images");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -43,7 +51,25 @@ public class ItemsService {
 
         item.setReportedBy(user);
         item.setStatus("Reported");
-        return itemsRepository.save(item);
+        ItemsEntity savedItem = itemsRepository.save(item);
+
+        // Notify users if the new item matches their lost items
+        List<UsersLostItems> matchingLostItems = usersLostItemsRepository.findByItemNameContainingIgnoreCase(savedItem.getItemName());
+        for (UsersLostItems lostItem : matchingLostItems) {
+            UserEntity lostUser = lostItem.getUser();
+            try {
+                String title = "Related Item Found";
+                String body = "An item related to your lost item '" + lostItem.getItemName() + "' has been reported.";
+                String deviceToken = lostUser.getFcmToken();
+                if (deviceToken != null && !deviceToken.isEmpty()) {
+                    notificationService.sendNotification(deviceToken, title, body);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return savedItem;
     }
 
     public ItemsEntity claimItem(Long itemId, String userID) {

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom Sheet Dialog Theme -->
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="MaroonTextInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/maroon</item>
+        <item name="boxBackgroundColor">#FAFAFA</item>
+        <item name="hintTextColor">@color/maroon</item>
+        <item name="helperTextTextColor">@color/maroon</item>
+        <item name="android:textColorHint">@color/maroon</item>
+        <item name="android:textColor">@color/maroon</item>
+        <item name="hintTextAppearance">@style/MaroonHintTextAppearance</item>
+        <item name="errorTextAppearance">@style/MaroonHintTextAppearance</item>
+    </style>
+
+    <style name="MaroonEditTextStyle" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/maroon</item>
+    </style>
+
+    <style name="MaroonHintTextAppearance" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/maroon</item>
+    </style>
+</resources>

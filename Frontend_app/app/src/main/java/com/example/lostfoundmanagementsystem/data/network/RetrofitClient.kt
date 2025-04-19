@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://delpoymentbackend.onrender.com/"
+    private const val BASE_URL = "https://it342-lostandfoundmanagementsystem.onrender.com/"
 
     val instance: AuthApi by lazy {
         Retrofit.Builder()

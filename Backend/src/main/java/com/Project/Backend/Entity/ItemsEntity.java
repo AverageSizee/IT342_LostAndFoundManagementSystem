@@ -24,6 +24,8 @@ public class ItemsEntity {
     private String location;
     private String imageUrl;
 
+
+
     @ManyToOne
     @JoinColumn(name = "reported_by", nullable = true)
     private UserEntity reportedBy; // User who reported the item
@@ -151,7 +153,6 @@ public class ItemsEntity {
         this.imageUrl = imageUrl;
     }
 
-    
-
 }
 
+ 

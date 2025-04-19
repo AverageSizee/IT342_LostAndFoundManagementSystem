@@ -35,6 +35,8 @@ public class UserEntity {
 
     private boolean isMicrosoft;
 
+    private String fcmToken;
+
     @OneToMany(mappedBy = "reportedBy", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<ItemsEntity> itemsReported; // Items reported by this user
@@ -157,7 +159,14 @@ public class UserEntity {
     public void setMicrosoft(boolean isMicrosoft) {
         this.isMicrosoft = isMicrosoft;
     }
-
+    
+    public String getFcmToken() {
+        return fcmToken;
+    }
+    
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
     
     
     
