@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "axios": "^1.8.4"
+  }
+}
