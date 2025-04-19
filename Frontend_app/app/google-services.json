@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "740841814688",
+    "project_id": "notification-a635b",
+    "storage_bucket": "notification-a635b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740841814688:android:6063f163cde2f582b027c5",
+        "android_client_info": {
+          "package_name": "com.example.lostfoundmanagementsystem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTF2Xqw8IqzOnKp4GTWqsl0qNTjgEdDvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

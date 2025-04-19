@@ -42,4 +42,18 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
+    fun updateFcmToken(authToken: String, schoolId: String, fcmToken: String) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.updateFcmToken("Bearer $authToken", schoolId, fcmToken)
+                if (response.isSuccessful) {
+                    println("FCM token updated successfully")
+                } else {
+                    println("Failed to update FCM token: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                println("Error updating FCM token: ${e.message}")
+            }
+        }
+    }
 }

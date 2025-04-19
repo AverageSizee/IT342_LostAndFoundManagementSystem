@@ -7,11 +7,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.lostfoundmanagementsystem.LandingActivity
 import com.example.lostfoundmanagementsystem.R
 import com.example.lostfoundmanagementsystem.data.SharedPrefManager
 import com.example.lostfoundmanagementsystem.data.model.LoginRequest
 import com.example.lostfoundmanagementsystem.ui.lostitems.LostItemsActivity
+import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
@@ -30,23 +30,41 @@ class LoginActivity : AppCompatActivity() {
 
             if (schoolId.isNotEmpty() && password.isNotEmpty()) {
                 loginViewModel.login(LoginRequest(schoolId, password))
-                Toast.makeText(this, "User: $schoolId pass: $password", Toast.LENGTH_SHORT).show()
+                // Show toast with safer context
+                showToast("Logging in...")
             } else {
-                Toast.makeText(this, "Fill in all fields", Toast.LENGTH_SHORT).show()
+                showToast("Fill in all fields")
             }
         }
 
         loginViewModel.loginResponse.observe(this) { response ->
-            if (response != null && response.token.isNotEmpty()) {
-                Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-                SharedPrefManager.saveUser(this, response.user, response.token)
+            if (!isFinishing && !isDestroyed) {
+                if (response != null && response.token.isNotEmpty()) {
+                    showToast("Login Successful")
 
-                val intent = Intent(this, LostItemsActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
+                    SharedPrefManager.saveUser(this, response.user, response.token)
+
+                    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val fcmToken = task.result
+                            loginViewModel.updateFcmToken(response.token, response.user, fcmToken)
+                        }
+                    }
+
+                    // Navigate after Toast is shown
+                    startActivity(Intent(this, LostItemsActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    })
+                } else {
+                    showToast("Login failed")
+                }
             }
+        }
+    }
+
+    private fun showToast(message: String) {
+        if (!isFinishing && !isDestroyed) {
+            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
         }
     }
 }

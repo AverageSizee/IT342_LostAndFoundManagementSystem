@@ -16,6 +16,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface AuthApi {
     @POST("user/register")
@@ -34,6 +35,12 @@ interface AuthApi {
         @Part("item") item: RequestBody,
         @Part imageFile: MultipartBody.Part? = null
     ): Call<LostItem>
+    @POST("user/update-fcm-token")
+    suspend fun updateFcmToken(
+        @Header("Authorization") token: String,
+        @Query("schoolId") schoolId: String,
+        @Query("fcmToken") fcmToken: String
+    ): Response<Void>
 }
 
 data class AuthResponse(val token: String, val message: String)
