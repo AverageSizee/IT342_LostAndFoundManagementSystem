@@ -93,7 +93,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource configurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173","https://it342-lostandfoundmanagementsystem.onrender.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));
