@@ -4,6 +4,9 @@
 .env.development
 .env.production
 
+# Firebase credentials
+Backend/src/main/resources/firebase-service-account.json
+
 # Dependency directories
 node_modules/
 
