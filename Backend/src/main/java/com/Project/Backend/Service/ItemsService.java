@@ -38,38 +38,20 @@ public class ItemsService {
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-
+    
         // Upload image to Cloudinary
-        String imageUrl= null;
+        String imageUrl = null;
         try {
             imageUrl = cloudinaryService.uploadImage(file, "item_images");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+    
         item.setImageUrl(imageUrl);
-
         item.setReportedBy(user);
         item.setStatus("Reported");
-        ItemsEntity savedItem = itemsRepository.save(item);
-
-        // Notify users if the new item matches their lost items
-        List<UsersLostItems> matchingLostItems = usersLostItemsRepository.findByItemNameContainingIgnoreCase(savedItem.getItemName());
-        for (UsersLostItems lostItem : matchingLostItems) {
-            UserEntity lostUser = lostItem.getUser();
-            try {
-                String title = "Related Item Found";
-                String body = "An item related to your lost item '" + lostItem.getItemName() + "' has been reported.";
-                String deviceToken = lostUser.getFcmToken();
-                if (deviceToken != null && !deviceToken.isEmpty()) {
-                    notificationService.sendNotification(deviceToken, title, body);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return savedItem;
+        
+        return itemsRepository.save(item);
     }
 
     public ItemsEntity claimItem(Long itemId, String userID) {
@@ -114,7 +96,25 @@ public class ItemsService {
             .orElseThrow(() -> new RuntimeException("Item not found"));
     
         item.setStatus("Confirmed");
-        return itemsRepository.save(item);
+        ItemsEntity confirmedItem = itemsRepository.save(item);
+    
+        // Notify users if the confirmed item matches their lost items
+        List<UsersLostItems> matchingLostItems = usersLostItemsRepository.findByItemNameContainingIgnoreCase(confirmedItem.getItemName());
+        for (UsersLostItems lostItem : matchingLostItems) {
+            UserEntity lostUser = lostItem.getUser();
+            try {
+                String title = "Related Item Found";
+                String body = "An item related to your lost item '" + lostItem.getItemName() + "' has been confirmed.";
+                String deviceToken = lostUser.getFcmToken();
+                if (deviceToken != null && !deviceToken.isEmpty()) {
+                    notificationService.sendNotification(deviceToken, title, body);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    
+        return confirmedItem;
     }
     public ItemsEntity updateItem(Long itemId, MultipartFile file, String itemName, String description, String foundDate, String location) throws IOException {
         Optional<ItemsEntity> optionalItem = itemsRepository.findById(itemId);
