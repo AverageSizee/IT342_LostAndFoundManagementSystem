@@ -53,8 +53,8 @@ const ClaimRequestsList = ({ claims, onApproveClaim, onDenyClaim }) => {
                                 <TableCell>{claim.item?.foundDate || "N/A"}</TableCell>
                                 <TableCell>{claim.item?.status || "N/A"}</TableCell>
                                 <TableCell>
-                                    {claim.claimedBy
-                                        ? `${claim.claimedBy.firstname} ${claim.claimedBy.lastname}`
+                                    {claim.user
+                                        ? `${claim.user.firstname} ${claim.user.lastname}`
                                         : "Unknown"}
                                 </TableCell>
                                 <TableCell align="right">

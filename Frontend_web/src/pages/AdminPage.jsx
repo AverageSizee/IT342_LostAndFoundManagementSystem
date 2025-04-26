@@ -51,6 +51,7 @@ const AdminPage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
+      // console.log("Fetched items:", data); // Debugging line
       setItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching items:", error);
@@ -85,6 +86,7 @@ const AdminPage = () => {
       });
       const data = await response.json();
       setClaimRequests(Array.isArray(data) ? data : []);
+      
     } catch (error) {
       console.error("Error fetching claim requests:", error);
     }
