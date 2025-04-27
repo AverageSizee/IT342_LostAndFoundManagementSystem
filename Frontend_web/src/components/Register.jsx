@@ -145,7 +145,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Box
               component="img"
-              src="/public/images/logo.png"
+              src="/images/logo.png"
               alt="CIT-U Lost and Found Logo"
               sx={{
                 width: "2rem",
