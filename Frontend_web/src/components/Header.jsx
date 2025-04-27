@@ -16,6 +16,7 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [loginOpen, setLoginOpen] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
+  const [userRole, setUserRole] = useState(null);
   const [foundItemOpen, setFoundItemOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState("Guest")
@@ -25,7 +26,7 @@ const Header = () => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
   
       if (!token) {
         setIsAuthenticated(false);
@@ -40,11 +41,18 @@ const Header = () => {
         setIsAuthenticated(true);
         setUsername(response.data.schoolId);
   
+        // Fetch user role
+        const roleResponse = await axios.get(`${API_URL}/getcurrentrole`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        setUserRole(roleResponse.data.role); // Assuming the response contains the role
+  
         // Fetch profile image only after user is authenticated
         fetchProfileImage(token);
   
       } catch (error) {
-        console.error("Error fetching student ID:", error.response?.data || error.message);
+        console.error("Error fetching user data:", error.response?.data || error.message);
         setIsAuthenticated(false);
       }
     };
@@ -55,18 +63,15 @@ const Header = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
   
-        setUserProfile(response.data); // Assuming the response contains the image URL
-
-        // console.log(response.data);
+        setUserProfile(response.data);
   
       } catch (error) {
         console.error("Error fetching profile image:", error.response?.data || error.message);
       }
     };
   
-    fetchUserInfo(); // Fetch on mount
+    fetchUserInfo();
   
-    // Handle auth status updates when storage changes
     const updateAuthStatus = () => fetchUserInfo();
   
     window.addEventListener("storage", updateAuthStatus);
@@ -122,7 +127,7 @@ const Header = () => {
 
   const handleLogout = () => {
     if (!isAuthenticated) return; 
-    logout();
+    logout(navigate);
   }
   const handleProfile = () => {
     if (!isAuthenticated) return; 
@@ -371,6 +376,9 @@ const Header = () => {
                     },
                   }}
                 >
+                  {userRole === "admin" && (
+                    <MenuItem onClick={() => navigate("/admin")}>Dashboard</MenuItem>
+                  )}
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   <MenuItem onClick={handleProfile}>Profile</MenuItem>
                 </Menu>

@@ -19,7 +19,7 @@ function App() {
           <Route path="/" element={<LandingPage />}/>
           
 
-          <Route path="/LostandFoundItems" element={<ProtectedRoute> <LostItemsPage/>         <Footer /></ProtectedRoute>}/>
+          <Route path="/LostandFoundItems" element={<ProtectedRoute> <LostItemsPage/></ProtectedRoute>}/>
           <Route path="/Admin" element={<AdminProtectedRoute> <AdminPage/> </AdminProtectedRoute>}/>
           <Route path="/Profile" element={<ProtectedRoute> <ProfilePage/> </ProtectedRoute>}/>
           

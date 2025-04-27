@@ -88,6 +88,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
           console.log("Login successful");
           setCredentials({});
         } catch (err) {
+          setLoading(false);
           console.error("Login error:", err);
         }
       } else {
@@ -124,12 +125,14 @@ const Login = ({ open, onClose, onRegisterClick }) => {
             console.error("Login error:", err);
           }
         } catch (error) {
+          setLoading(false);
           alert(error.response?.data?.message || "Registration failed.");
         }
       }
   
       onClose();
     } catch (err) {
+      setLoading(false);
       console.error("Microsoft login error:", err);
     }
   };

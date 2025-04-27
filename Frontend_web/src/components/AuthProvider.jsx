@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
         
     }
 
-    const logout = async () => {
+    const logout = async (navigate) => {
         const token = localStorage.getItem("token");
     
         if (!token) return; // Prevent double execution if already logged out
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
             setTimeout(() => {
                 window.dispatchEvent(new Event("storage"));
             }, 100);
-    
+            navigate("/");
         } catch (error) {
             console.error("Logout failed:", error);
         }
