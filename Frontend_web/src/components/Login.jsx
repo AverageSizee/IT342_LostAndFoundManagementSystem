@@ -236,7 +236,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
             <Typography variant="body2" sx={{ mt: 1 }}><a href="#" style={{ color: "#800000", fontWeight: "bold", textDecoration: "none" }}>Forgot Password</a></Typography>
           </Box>
           <Box sx={{ flex: 1, position: "relative", overflow: "hidden", borderRadius: { xs: "0", md: "0 15px 15px 0" }, display: { xs: "none", md: "block" } }}>
-            <Box component="img" src="/public/images/studentss.png" alt="Students" sx={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.8)" }} />
+            <Box component="img" src="/images/studentss.png" alt="Students" sx={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.8)" }} />
           </Box>
         </Box>
       </Box>

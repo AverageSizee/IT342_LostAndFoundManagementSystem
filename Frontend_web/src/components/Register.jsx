@@ -355,7 +355,7 @@ const Register = ({ open, onClose, onLoginClick }) => {
           >
             <Box
               component="img"
-              src="/public/images/studentss.png"
+              src="/images/studentss.png"
               alt="Students"
               sx={{
                 width: "100%",

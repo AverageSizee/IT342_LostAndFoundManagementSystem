@@ -103,7 +103,12 @@ const Header = () => {
   }
 
   const handleFoundItemClick = () => {
-    setFoundItemOpen(true);
+    if (isAuthenticated) {
+      setFoundItemOpen(true); 
+    } else {
+      
+      alert("Please log in to report a found item.");
+    }
   };
   
   const handleFoundItemClose = () => {
@@ -147,7 +152,7 @@ const Header = () => {
           <Box display="flex" alignItems="center">
             <Box
               component="img"
-              src="/public/images/logo.png"
+              src="/images/logo.png"
               alt="CIT-U Lost and Found Logo"
               sx={{
                 width: "2rem",
