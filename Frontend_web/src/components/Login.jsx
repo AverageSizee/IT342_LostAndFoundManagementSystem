@@ -186,7 +186,7 @@ const Login = ({ open, onClose, onRegisterClick }) => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box component="img" src="/images/logo.png" alt="CIT-U Lost and Found Logo" sx={{ width: "2rem", height: "2rem", marginRight: "0.5rem" }} />
+            <Box component="img" src="/Images/logo.png" alt="CIT-U Lost and Found Logo" sx={{ width: "2rem", height: "2rem", marginRight: "0.5rem" }} />
             <Typography variant="h6" sx={{ fontSize: "18px", fontWeight: "bold", color: "white" }}>CIT-U Lost&Found</Typography>
           </Box>
           <IconButton onClick={onClose} sx={{ color: "white" }}>

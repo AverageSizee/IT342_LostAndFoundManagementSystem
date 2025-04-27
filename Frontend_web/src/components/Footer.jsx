@@ -57,7 +57,7 @@ const Footer = () => {
             <Box textAlign="center">
               <Box
                 component="img"
-                src="/images/logo.png"
+                src="/Images/logo.png"
                 alt="CIT-U Logo"
                 sx={{ width: "2.5rem", height: "2.5rem", marginBottom: "0.75rem" }}
               />
