@@ -30,14 +30,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_centerInParent="true" />
-
-            <ImageView
-                android:id="@+id/profileIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentEnd="true"
-                android:src="@android:drawable/ic_menu_myplaces"
-                android:tint="#FFFFFF" />
         </RelativeLayout>
 
         <!-- Search bar -->

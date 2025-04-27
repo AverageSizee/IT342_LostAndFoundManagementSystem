@@ -30,34 +30,40 @@ class LoginActivity : AppCompatActivity() {
 
             if (schoolId.isNotEmpty() && password.isNotEmpty()) {
                 loginViewModel.login(LoginRequest(schoolId, password))
-                // Show toast with safer context
                 showToast("Logging in...")
             } else {
                 showToast("Fill in all fields")
             }
         }
 
+        loginViewModel.isLoading.observe(this) { isLoading ->
+            loginButton.isEnabled = !isLoading
+            loginButton.text = if (isLoading) "Logging in..." else "Log in"
+        }
+
         loginViewModel.loginResponse.observe(this) { response ->
-            if (!isFinishing && !isDestroyed) {
-                if (response != null && response.token.isNotEmpty()) {
-                    showToast("Login Successful")
+            if (!isFinishing && !isDestroyed && response != null && response.token.isNotEmpty()) {
+                showToast("Login Successful")
 
-                    SharedPrefManager.saveUser(this, response.user, response.token)
+                SharedPrefManager.saveUser(this, response.user, response.token)
 
-                    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val fcmToken = task.result
-                            loginViewModel.updateFcmToken(response.token, response.user, fcmToken)
-                        }
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val fcmToken = task.result
+                        loginViewModel.updateFcmToken(response.token, response.user, fcmToken)
                     }
-
-                    // Navigate after Toast is shown
-                    startActivity(Intent(this, LostItemsActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    })
-                } else {
-                    showToast("Login failed")
                 }
+
+                startActivity(Intent(this, LostItemsActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                })
+            }
+        }
+
+// ✅ Observe login errors
+        loginViewModel.loginError.observe(this) { errorMessage ->
+            errorMessage?.let {
+                showToast(it)
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.example.lostfoundmanagementsystem.data.model
 
 data class LostItem(
-    val itemId: Long,
+    val itemID: Long,
     val itemName: String,
     val location: String,
     val status: String,

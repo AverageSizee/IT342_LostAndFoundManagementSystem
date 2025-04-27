@@ -8,6 +8,7 @@ import com.example.lostfoundmanagementsystem.data.model.User
 import com.example.lostfoundmanagementsystem.data.model.UsersLostItemRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
@@ -48,6 +49,14 @@ interface AuthApi {
         @Path("userId") userId: String,
         @Body lostItemRequest: UsersLostItemRequest
     ): Response<Void>
+    @POST("claims/request")
+    suspend fun submitClaimRequest(
+        @Header("Authorization") token: String,
+        @Query("userId") user: String,
+        @Query("itemId") item: Long,
+        @Query("claimDate") claimDate: String,
+        @Query("reason") reason: String
+    ): Response<ResponseBody>
 }
 
 data class AuthResponse(val token: String, val message: String)

@@ -7,8 +7,25 @@
         <item name="colorOnPrimary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/maroon</item>
+
+        <!-- Action bar customization -->
+        <item name="actionBarStyle">@style/Widget.App.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.App.ActionBar</item>
     </style>
 
+    <!-- Custom ActionBar style -->
+    <style name="Widget.App.ActionBar" parent="Widget.MaterialComponents.ActionBar.Primary">
+        <item name="background">@color/maroon</item>
+        <item name="titleTextStyle">@style/TextAppearance.App.ActionBar.Title</item>
+    </style>
+
+    <!-- Custom ActionBar title text appearance -->
+    <style name="TextAppearance.App.ActionBar.Title" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/gold</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Your NoActionBar theme remains unchanged -->
     <style name="Theme.LostFoundManagementSystem.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

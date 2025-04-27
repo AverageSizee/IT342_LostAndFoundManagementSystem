@@ -252,6 +252,11 @@ class CameraFragment : Fragment() {
             val token = SharedPrefManager.getUserToken(requireContext())
 
             val viewModel = ViewModelProvider(this@CameraFragment)[ReportItemViewModel::class.java]
+
+            // Disable button to prevent multiple clicks
+            modalBinding.reportButton.isEnabled = false
+            modalBinding.reportButton.text = "Uploading..."
+
             viewModel.reportLostItem(
                 token = token.toString(),
                 userId = userId.toString(),
@@ -268,6 +273,9 @@ class CameraFragment : Fragment() {
                     bottomSheetDialog.dismiss()
                 }.onFailure {
                     Toast.makeText(requireContext(), "Failed to report item: ${it.message}", Toast.LENGTH_LONG).show()
+                    // Re-enable for retry
+                    modalBinding.reportButton.isEnabled = true
+                    modalBinding.reportButton.text = "Report"
                 }
             }
         }

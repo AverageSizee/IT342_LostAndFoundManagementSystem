@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_menu_view"
+        android:src="@drawable/ic_home"
         android:scaleType="centerInside"
         android:contentDescription="Home"
         android:tint="#7B0000" />
@@ -30,12 +30,12 @@
         android:tint="#7B0000" />
 
     <ImageButton
-        android:id="@+id/notificationButton"
+        android:id="@+id/profileIcon"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_dialog_info"
+        android:src="@drawable/ic_profile"
         android:scaleType="centerInside"
         android:contentDescription="Notifications"
         android:tint="#7B0000" />

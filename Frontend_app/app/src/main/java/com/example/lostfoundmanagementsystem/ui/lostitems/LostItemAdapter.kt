@@ -1,6 +1,5 @@
 package com.example.lostfoundmanagementsystem.ui.lostitems
 
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,8 +7,10 @@ import com.bumptech.glide.Glide
 import com.example.lostfoundmanagementsystem.data.model.LostItem
 import com.example.lostfoundmanagementsystem.databinding.ItemLostBinding
 
-class LostItemAdapter(private val items: List<LostItem>) :
-    RecyclerView.Adapter<LostItemAdapter.LostItemViewHolder>() {
+class LostItemAdapter(
+    private val items: List<LostItem>,
+    private val onItemClick: (LostItem) -> Unit
+) : RecyclerView.Adapter<LostItemAdapter.LostItemViewHolder>() {
 
     inner class LostItemViewHolder(private val binding: ItemLostBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -24,6 +25,9 @@ class LostItemAdapter(private val items: List<LostItem>) :
                 .error(android.R.drawable.ic_delete)
                 .into(binding.itemImage)
 
+            binding.root.setOnClickListener {
+                onItemClick(item)
+            }
         }
     }
 

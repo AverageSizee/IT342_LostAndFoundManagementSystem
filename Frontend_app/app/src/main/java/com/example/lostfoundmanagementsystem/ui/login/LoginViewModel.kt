@@ -8,19 +8,29 @@ import com.example.lostfoundmanagementsystem.data.model.LoginResponse
 import com.example.lostfoundmanagementsystem.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
-import retrofit2.Response
+import retrofit2.HttpException
+import java.io.IOException
 
 class LoginViewModel : ViewModel() {
+
     private val _loginResponse = MutableLiveData<LoginResponse?>()
     val loginResponse: LiveData<LoginResponse?> get() = _loginResponse
 
+    private val _loginError = MutableLiveData<String?>()
+    val loginError: LiveData<String?> get() = _loginError
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun login(loginRequest: LoginRequest) {
+        _isLoading.postValue(true)
+        _loginError.postValue(null)
+
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.instance.login(loginRequest)
                 if (response.isSuccessful && response.body() != null) {
                     val responseBody = response.body()!!
-                    println("API Response: $responseBody")
 
                     val token = responseBody["token"] as? String ?: ""
                     val user = responseBody["user"] as? String ?: ""
@@ -29,19 +39,24 @@ class LoginViewModel : ViewModel() {
                     if (token.isNotEmpty()) {
                         _loginResponse.postValue(LoginResponse(token, user, role))
                     } else {
-                        println("Login failed: Token is empty")
-                        _loginResponse.postValue(null)
+                        _loginError.postValue("Invalid credentials")
                     }
                 } else {
-                    println("Login failed: ${response.errorBody()?.string()}")
-                    _loginResponse.postValue(null)
+                    _loginError.postValue("Invalid credentials")
                 }
+            } catch (e: IOException) {
+                // network issue / no connection
+                _loginError.postValue("Backend Loading")
+            } catch (e: HttpException) {
+                _loginError.postValue("Invalid credentials")
             } catch (e: Exception) {
-                println("Login error: ${e.message}")
-                _loginResponse.postValue(null)
+                _loginError.postValue("Backend Loading")
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }
+
     fun updateFcmToken(authToken: String, schoolId: String, fcmToken: String) {
         viewModelScope.launch {
             try {
