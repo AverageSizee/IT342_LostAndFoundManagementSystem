@@ -365,8 +365,8 @@ const Header = () => {
                     },
                   }}
                 >
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   <MenuItem onClick={handleProfile}>Profile</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
               </Box>
             ) : (

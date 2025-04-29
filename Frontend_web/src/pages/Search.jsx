@@ -165,54 +165,7 @@ const Search = () => {
               {filteredItems.length > 0 ? (
                 filteredItems.map((item) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={item.itemID}>
-                    <Box
-                      sx={{
-                        backgroundColor: "#e1e1e1",
-                        borderRadius: 2,
-                        overflow: "hidden",
-                        textAlign: "center",
-                        boxShadow: 2,
-                        transition: "0.3s",
-                        color: "#000",
-                        '&:hover': { boxShadow: 4 },
-                      }}
-                    >
-                      <Box
-                        component="img"
-                        src={item.imageUrl || "/placeholder.svg"}
-                        alt={item.itemName}
-                        sx={{ width: "100%", height: 250, objectFit: "contain" }}
-                      />
-                      <Box px={2} pt={2} textAlign="left">
-                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                          {item.itemName}
-                        </Typography>
-                        <Typography variant="body2">
-                          Date Found: <strong>{item.date || "N/A"}</strong>
-                        </Typography>
-                        <Typography variant="body2">
-                          Location: <strong>{item.location || "Unknown"}</strong>
-                        </Typography>
-                        <Typography variant="body2" gutterBottom>
-                          Which office to claim: <strong>{item.office || "N/A"}</strong>
-                        </Typography>
-                      </Box>
-                      <Box px={2} pb={2} pt={1}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          sx={{
-                            backgroundColor: "#800000",
-                            borderRadius: "30px",
-                            fontWeight: "bold",
-                            color: "#fff",
-                            '&:hover': { backgroundColor: "#a00000" },
-                          }}
-                        >
-                          CLAIM
-                        </Button>
-                      </Box>
-                    </Box>
+                    
                   </Grid>
                 ))
               ) : (
