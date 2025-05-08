@@ -92,7 +92,9 @@ const UpdateProfilePage = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#5a1818" }}>
       <Header /><br></br><br></br>
+
       <Typography variant="h3" align="center" color="white" sx={{ mt: 5, fontWeight: "bold" }}>
+        <br></br>
         Profile Settings
       </Typography>
       <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
@@ -110,7 +112,6 @@ const UpdateProfilePage = () => {
               { label: "Name:", value: `${user.firstname} ${user.lastname}`, fontSize: "30px" },
               { label: "Birthdate:", value: user.birthdate || "Not Provided" },
               { label: "Email:", value: user.email },
-              { label: "Phone:", value: user.phone },
             ].map((item, idx) => (
               <Box key={idx} sx={{ display: "flex", alignItems: "center" }}>
                 <Typography
@@ -139,11 +140,6 @@ const UpdateProfilePage = () => {
               fullWidth
               sx={{ backgroundColor: "white" }}
             />
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Typography sx={{ width: "400px", color: "white" }}>Update Phone</Typography>
-            <TextField value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth sx={{ backgroundColor: "white" }}/>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

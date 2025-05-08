@@ -34,7 +34,7 @@ const ReportLostItem = ({ open, onClose, userID }) => {
     }
   }
 
-  const handleReport = async (e) => {
+  const  handleReport = async (e) => {
     e.preventDefault();
   
     const token = localStorage.getItem("token");
@@ -58,7 +58,6 @@ const ReportLostItem = ({ open, onClose, userID }) => {
         formDataToSend.append("image", selectedFile);
       }
   
-      // Append JSON data as a Blob
       formDataToSend.append(
         "item",
         new Blob(
@@ -85,12 +84,18 @@ const ReportLostItem = ({ open, onClose, userID }) => {
       );
   
       console.log("Success:", response.data);
+  
+      // Show success alert and close modal
+      alert("Lost item request submitted successfully.");
+      onClose(); // This will close the modal
+  
     } catch (error) {
       console.error("Error reporting lost item:", error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
   };
+  
   
 
   return (
