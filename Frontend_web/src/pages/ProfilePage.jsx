@@ -96,6 +96,7 @@ const UpdateProfilePage = () => {
       </Typography>
       <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
 
+
         {/* Profile Display */}
         <Box
           sx={{backgroundColor: "white", borderRadius: "10px", padding: "20px", width: "400px", height: "600px", boxShadow: 3, ml: 3}}
@@ -112,21 +113,12 @@ const UpdateProfilePage = () => {
             ].map((item, idx) => (
               <Box key={idx} sx={{ display: "flex", alignItems: "center" }}>
                 <Typography
-                  sx={{
-                    fontWeight: "bold",
-                    width: "120px",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
+                  sx={{fontWeight: "bold", width: "120px", color: "black", display: "flex", alignItems: "center" }}
                 >
                   {item.label}
                 </Typography>
                 <Typography
-                  sx={{
-                    color: "black",
-                    fontSize: item.fontSize || "16px",
-                  }}
+                  sx={{ color: "black", fontSize: item.fontSize || "16px"}}
                 >
                   {item.value}
                 </Typography>
@@ -134,7 +126,6 @@ const UpdateProfilePage = () => {
             ))}
           </Box>
         </Box>
-
 
 
         {/* Profile Form */}
@@ -169,13 +160,10 @@ const UpdateProfilePage = () => {
           >
           {loading ? "Saving..." : "Save Changes"}
         </Button>
-       
         </Box>
-
       </Container>
       <Footer />
     </Box>
   );
 };
-
 export default UpdateProfilePage;

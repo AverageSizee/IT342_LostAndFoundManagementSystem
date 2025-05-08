@@ -289,7 +289,7 @@ const LostItemsPage = () => {
   const [open, setOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [recentSearches, setRecentSearches] = useState([]);
+  // const [recentSearches, setRecentSearches] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -373,17 +373,17 @@ const LostItemsPage = () => {
     }
   };
 
-  const addRecentSearch = (term) => {
-    const trimmed = term.trim();
-    if (trimmed && !recentSearches.includes(trimmed)) {
-      setRecentSearches([trimmed, ...recentSearches.slice(0, 4)]);
-    }
-  };
+  // const addRecentSearch = (term) => {
+  //   const trimmed = term.trim();
+  //   if (trimmed && !recentSearches.includes(trimmed)) {
+  //     setRecentSearches([trimmed, ...recentSearches.slice(0, 4)]);
+  //   }
+  // };
   
 
-  const removeRecentSearch = (term) => {
-    setRecentSearches(recentSearches.filter((t) => t !== term));
-  };
+  // const removeRecentSearch = (term) => {
+  //   setRecentSearches(recentSearches.filter((t) => t !== term));
+  // };
 
   const filteredItems = searchTerm
     ? lostItems.filter(
@@ -418,9 +418,9 @@ const LostItemsPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              navigate(`/search?query=${searchTerm}`);
-            }
+            // if (e.key === "Enter") {
+            //   navigate(`/search?query=${searchTerm}`);
+            // }
           }}
           
           InputProps={{
@@ -438,7 +438,7 @@ const LostItemsPage = () => {
           }}
         />
 
-        {/* Recent Searches */}
+        {/* Recent Searches
         {!searchTerm && recentSearches.filter(term => term.trim() !== "").length > 0 && (
           <Box textAlign="center" mb={3}>
             <Typography variant="subtitle1">Recent Searches</Typography>
@@ -453,13 +453,13 @@ const LostItemsPage = () => {
               ))}
             </Box>
           </Box>
-        )}
+        )} */}
 
-        {searchTerm && (
+        {/* {searchTerm && (
           <Typography variant="h6" textAlign="center" gutterBottom>
             Results for: <strong>{searchTerm}</strong>
           </Typography>
-        )}
+        )} */}
 
         {loading ? (
           <Typography textAlign="center">Loading...</Typography>
@@ -472,59 +472,55 @@ const LostItemsPage = () => {
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <Grid item xs={12} sm={6} md={4} key={item.itemID}>
-                  <Card
-                    sx={{
-                      backgroundColor: "#e1e1e1",
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      height: 130,
-                      px: 2,
-                      py: 1,
-                      cursor: "pointer",
-                      "&:hover": { boxShadow: 4 },
-                    }}
-                    onClick={() => handleOpen(item)}
-                  >
-                    <CardMedia
-                      component="img"
+                  <Box
                       sx={{
-                        width: 80,
-                        height: 80,
+                        backgroundColor: "#e1e1e1",
                         borderRadius: 2,
-                        objectFit: "cover",
-                        mr: 2,
+                        overflow: "hidden",
+                        textAlign: "center",
+                        boxShadow: 2,
+                        transition: "0.3s",
+                        color: "#000",
+                        '&:hover': { boxShadow: 4 },
                       }}
-                      image={item.imageUrl || "/placeholder.svg"}
-                      alt={item.itemName}
-                    />
-
-                    <Box sx={{ flex: 1, overflow: "hidden" }}>
-                      <Typography variant="subtitle1" noWrap>
-                        {item.itemName} found at {item.location || "Unknown"}
-                      </Typography>
-                      {/* <Typography variant="body2" color="text.secondary">
-                        Date Found: {item.date || "No date available"}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Office: {item.office || "Not specified"}
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        sx={{
-                          mt: 1,
-                          px: 2,
-                          backgroundColor: "#800000",
-                          "&:hover": { backgroundColor: "#a00000" },
-                        }}
-                      >
-                        CLAIM
-                      </Button> */}
+                    >
+                      <Box
+                        component="img"
+                        src={item.imageUrl || "/placeholder.svg"}
+                        alt={item.itemName}
+                        sx={{ width: "100%", height: 250, objectFit: "contain" }}
+                      />
+                      <Box px={2} pt={2} textAlign="left">
+                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                          {item.itemName}
+                        </Typography>
+                        <Typography variant="body2">
+                          Date Found: <strong>{item.date || "N/A"}</strong>
+                        </Typography>
+                        <Typography variant="body2">
+                          Location: <strong>{item.location || "Unknown"}</strong>
+                        </Typography>
+                        <Typography variant="body2" gutterBottom>
+                          Which office to claim: <strong>{item.office || "N/A"}</strong>
+                        </Typography>
+                      </Box>
+                      <Box px={2} pb={2} pt={1}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={() => handleOpen(item)}
+                          sx={{
+                            backgroundColor: "#800000",
+                            borderRadius: "30px",
+                            fontWeight: "bold",
+                            color: "#fff",
+                            '&:hover': { backgroundColor: "#a00000" },
+                          }}
+                        >
+                          CLAIM
+                        </Button>
+                      </Box>
                     </Box>
-                  </Card>
                 </Grid>
               ))
             ) : (

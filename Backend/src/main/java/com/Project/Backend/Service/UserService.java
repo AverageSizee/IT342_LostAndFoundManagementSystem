@@ -53,35 +53,37 @@ public class UserService {
         return user.getProfilePicture();
     }
 
-    public UserEntity updateUserProfile(String userId, MultipartFile file, String firstname, String lastname, String password) throws IOException {
+    public UserEntity updateUserProfile(String userId, MultipartFile file, String firstname, String lastname, String email, String password) throws IOException {
         UserEntity user = userRepository.findBySchoolId(userId);
-        
-        // Check if a new profile image is provided
+    
         if (file != null && !file.isEmpty()) {
-            // Delete the previous image from Cloudinary (if it exists)
             String existingImageUrl = user.getProfilePicture();
             if (existingImageUrl != null && !existingImageUrl.isEmpty()) {
                 cloudinaryService.deleteImage(existingImageUrl);
             }
-    
-            // Upload new image
             String newImageUrl = cloudinaryService.uploadImage(file, "user_profiles");
             user.setProfilePicture(newImageUrl);
         }
     
-        // Update other fields if provided
-        if (firstname != null && !firstname.isEmpty()) {
-            user.setFirstname(firstname);
+        if (firstname != null && !firstname.trim().isEmpty()) {
+            user.setFirstname(firstname.trim());
         }
-        if (lastname != null && !lastname.isEmpty()) {
-            user.setLastname(lastname);
+    
+        if (lastname != null && !lastname.trim().isEmpty()) {
+            user.setLastname(lastname.trim());
         }
-        if (password != null && !password.isEmpty()) {
-            user.setPassword(bCryptPasswordEncoder.encode(password)); // Ensure password is hashed before saving
+    
+        if (email != null && !email.trim().isEmpty()) {
+            user.setEmail(email.trim());
+        }
+        if (password != null && !password.trim().isEmpty()) {
+            user.setPassword(bCryptPasswordEncoder.encode(password.trim()));
         }
     
         return userRepository.save(user);
     }
+    
+    
 
     public boolean loginUser(String schoolId, String password) {
         UserEntity user = userRepository.findBySchoolId(schoolId);
