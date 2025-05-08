@@ -42,7 +42,7 @@ const ClaimRequestsList = ({ claims, onApproveClaim, onDenyClaim }) => {
                                         src={
                                             claim.item?.imageUrl?.startsWith("http")
                                                 ? claim.item.imageUrl
-                                                : `http://localhost:8080/uploads/${claim.item?.imageUrl}`
+                                                : `${API_CONFIG.BASE_URL}/uploads/${claim.item?.imageUrl}`
                                         }
                                         alt={claim.item?.itemName || "Item"}
                                         style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }}

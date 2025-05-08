@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Container, Button, TextField, Avatar } from "@mui/material";
+import { Box, Container, Button, TextField, Avatar, Typography } from "@mui/material";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -8,32 +8,34 @@ import { API_CONFIG } from '../config/apiConfig';
 
 const UpdateProfilePage = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null); // State for user data
+  const [user, setUser] = useState(null);
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch current user information when the component mounts
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("token");
-
-      if (!token) {
-        return;
-      }
+      if (!token) return;
 
       try {
         const response = await axios.get(`${API_CONFIG.BASE_URL}/user/getcurrentuser`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(response.data);
-        setUser(response.data);
-        setFirstname(response.data.firstname);
-        setLastname(response.data.lastname);
-        setPreview(response.data.profilePicture); // Assuming the response contains the profile picture URL
+
+        const data = response.data;
+        setUser(data);
+        setFirstname(data.firstname);
+        setLastname(data.lastname);
+        setEmail(data.email);
+        setPhone(data.phone);
+        setPreview(data.profilePicture);
       } catch (error) {
         console.error("Error fetching user info", error);
         navigate("/");
@@ -41,91 +43,128 @@ const UpdateProfilePage = () => {
     };
 
     fetchUserInfo();
-  }, []);
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    }
-  };
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
-    if (firstname) formData.append("firstname", firstname);
-    if (lastname) formData.append("lastname", lastname);
+    formData.append("firstname", firstname);
+    formData.append("lastname", lastname);
+    formData.append("email", email);
+    formData.append("phone", phone);
     if (password) formData.append("password", password);
     if (file) formData.append("file", file);
 
     try {
-      const response = await axios.post(
-        `${API_CONFIG.BASE_URL}/user/upload/user/${user?.schoolId}`, // Using user.schoolId from the fetched user data
+      await axios.post(
+        `${API_CONFIG.BASE_URL}/user/upload/user/${user.schoolId}`,
         formData,
-        { 
-          headers: { 
+        {
+          headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("token")}` // Include the token for authentication
-          } 
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
-      // console.log("Profile updated successfully", response.data);
+
+      alert("Profile updated successfully!");
       window.location.reload();
     } catch (error) {
       console.error("Error updating profile", error);
-      alert("Error updating profile, please try again!");
+      alert("Error updating profile. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   if (!user) {
-    return <div>Loading...</div>; // Display loading state until user data is fetched
+    return <div>Loading...</div>;
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header />
-      <Container sx={{ flexGrow: 1, display: "flex", flexDirection: "column", alignItems: "center", mt: 4 }}>
-        <Avatar src={preview} sx={{ width: 100, height: 100, mb: 2 }} />
-        <input type="file" accept="image/*" onChange={handleFileChange} />
-        <TextField 
-          label="First Name" 
-          value={firstname} 
-          onChange={(e) => setFirstname(e.target.value)} 
-          fullWidth 
-          margin="normal" 
-        />
-        <TextField 
-          label="Last Name" 
-          value={lastname} 
-          onChange={(e) => setLastname(e.target.value)} 
-          fullWidth 
-          margin="normal" 
-        />
-        <TextField 
-          label="Password" 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          fullWidth 
-          margin="normal" 
-        />
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit} 
-          sx={{ mt: 2 }}
-          disabled={loading}
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#5a1818" }}>
+      <Header /><br></br><br></br>
+      <Typography variant="h3" align="center" color="white" sx={{ mt: 5, fontWeight: "bold" }}>
+        Profile Settings
+      </Typography>
+      <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 4 }}>
+
+
+        {/* Profile Display */}
+        <Box
+          sx={{backgroundColor: "white", borderRadius: "10px", padding: "20px", width: "400px", height: "600px", boxShadow: 3, ml: 3}}
         >
-          {loading ? "Updating..." : "Update Profile"}
+          <Avatar src={preview} sx={{ width: 120, height: 120, mb: 2, mx: "auto" }} />
+
+          <Box sx={{ mt: 3, display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* Reusable row component */}
+            {[
+              { label: "Name:", value: `${user.firstname} ${user.lastname}`, fontSize: "30px" },
+              { label: "Birthdate:", value: user.birthdate || "Not Provided" },
+              { label: "Email:", value: user.email },
+              { label: "Phone:", value: user.phone },
+            ].map((item, idx) => (
+              <Box key={idx} sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  sx={{fontWeight: "bold", width: "120px", color: "black", display: "flex", alignItems: "center" }}
+                >
+                  {item.label}
+                </Typography>
+                <Typography
+                  sx={{ color: "black", fontSize: item.fontSize || "16px"}}
+                >
+                  {item.value}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+
+        {/* Profile Form */}
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: "600px", ml: "auto" }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Typography sx={{ width: "400px", color: "white" }}>Update Email</Typography>
+            <TextField
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              sx={{ backgroundColor: "white" }}
+            />
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Typography sx={{ width: "400px", color: "white" }}>Update Phone</Typography>
+            <TextField value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth sx={{ backgroundColor: "white" }}/>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Typography sx={{ width: "400px", color: "white" }}>Change Password</Typography>
+            <TextField type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth sx={{ backgroundColor: "white" }}/>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <Typography sx={{ width: "400px", color: "white" }}>Confirm Password</Typography>
+            <TextField type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} fullWidth sx={{ backgroundColor: "white" }}/>
+          </Box>
+
+          <Button type="submit" variant="contained" 
+          disabled={loading} sx={{ backgroundColor: "gold", color: "black", ml: "240px" }}
+          >
+          {loading ? "Saving..." : "Save Changes"}
         </Button>
+        </Box>
       </Container>
       <Footer />
     </Box>
   );
 };
-
 export default UpdateProfilePage;

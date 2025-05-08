@@ -155,7 +155,7 @@ const ItemList = ({ items, onDelete, onEdit, onMarkAsUnclaimed }) => {
               >
                 <TableCell>
                   <img
-                    src={item.imageUrl?.startsWith("http") ? item.imageUrl : `http://localhost:8080/uploads/${item.imageUrl}`}
+                    src={item.imageUrl?.startsWith("http") ? item.imageUrl : `${API_CONFIG.BASE_URL}/uploads/${item.imageUrl}`}
                     alt={item.itemName}
                     style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }}
                   />
