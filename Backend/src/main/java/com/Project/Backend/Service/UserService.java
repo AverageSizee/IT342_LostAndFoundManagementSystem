@@ -119,4 +119,33 @@ public class UserService {
 
         return true;
     }
+
+    public UserEntity updateUser(String schoolId, UserEntity updatedUser) {
+        UserEntity existingUser = userRepository.findBySchoolId(schoolId);
+        if (existingUser == null) {
+            return null;
+        }
+    
+        // Update basic fields
+        if (updatedUser.getFirstname() != null && !updatedUser.getFirstname().isEmpty()) {
+            existingUser.setFirstname(updatedUser.getFirstname());
+        }
+        if (updatedUser.getLastname() != null && !updatedUser.getLastname().isEmpty()) {
+            existingUser.setLastname(updatedUser.getLastname());
+        }
+        
+        // Add email update
+        if (updatedUser.getEmail() != null && !updatedUser.getEmail().isEmpty()) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+        
+        // Add role update (with validation if needed)
+        if (updatedUser.getRole() != null && !updatedUser.getRole().isEmpty()) {
+            existingUser.setRole(updatedUser.getRole());
+        }
+    
+        return userRepository.save(existingUser);
+    }
+     
+    
 }

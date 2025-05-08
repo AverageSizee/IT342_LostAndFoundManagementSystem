@@ -40,4 +40,18 @@ public class RequestClaimController {
             return ResponseEntity.status(404).body(response);  
         }
     }
+
+    @PutMapping("/deny/{requestId}")
+    public ResponseEntity<String> denyClaim(@PathVariable Long requestId) {
+        String response = requestClaimService.rejectClaim(requestId);
+        if (response.equals("Claim rejected.")) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+    
+    
+
 }
