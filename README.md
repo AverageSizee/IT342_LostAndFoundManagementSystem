@@ -22,6 +22,12 @@
 
 
 
+## Preview
+
+![Preview of the website](example.png)
+
+
+
 # Lost and Found Managaging System
 The Lost and Found System streamlines the process of reporting and reclaiming lost items within the campus. When a student finds a lost item, they report it to a designated office where an assigned admin or personnel collects detailed information about the item, such as its description, location, and time it was found. To prevent spam and ensure accuracy, the admin inputs and verifies the details before posting the item on the Lost and Found page.
 
